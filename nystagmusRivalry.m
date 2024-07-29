@@ -71,6 +71,10 @@ p.addParameter('debug',false,@(x) validateattributes(x,{'logical'},{'scalar','no
 p.addParameter('tDur',4000,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % trial duration from onset of first patch (ms)
 p.addParameter('nRepPerCond',10,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % number of repeats of each condition
 p.addParameter('rewardVol',0.035,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
+p.addParameter('conditionSwitch', [0 1 2]);
+%conditionSwitch = 0: binocular flash suppression
+%conditionSwitch = 1: physical alteration
+%conditionSwitch = 2: congruent direction between two patches
 
 %patch stimuli
 p.addParameter('patchType','rdp');
@@ -188,9 +192,6 @@ for ii = 1:nrConds
 
 end
 fm{1}.addProperty('conditionSwitch', 1);
-%conditionSwitch = 0: binocular flash suppression
-%conditionSwitch = 1: physical alteration
-%conditionSwitch = 2: congruent direction between two patches
 
 fm{1}.addProperty('redFirst',0);
 %fm{1}.redFirst = plugins.jitter(c,{0, 1},'distribution','1ofN'); %NG always return 1
@@ -276,7 +277,7 @@ for a = 1:length(facInList)
 end
 
 myDesign.fac2.patch1.redFirst = [0 1]; %whether to start with red or blue
-myDesign.fac3.patch1.conditionSwitch = [1];
+myDesign.fac3.patch1.conditionSwitch = args.conditionSwitch;
 
 myDesign.retry = 'RANDOM'; %'IMMEDIATE' or 'IGNORE';
 myDesign.maxRetry = 4;%10;  % Each condition will be retried up to this many times.
