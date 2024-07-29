@@ -73,7 +73,7 @@ p.addParameter('nRepPerCond',10,@(x) validateattributes(x,{'numeric'},{'scalar',
 p.addParameter('rewardVol',0.035,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
 
 %patch stimuli
-p.addParameter('dirList_first',[0 90]); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
+p.addParameter('dirList_first',[0]); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
 p.addParameter('speed',4); %[deg]
 p.addParameter('radius',5); %aperture size [pix]
 p.addParameter('SOARange', [1500 2500]); %stimulus onset after the end of fixation
