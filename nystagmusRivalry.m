@@ -163,7 +163,6 @@ for ii = 1:nrConds
         fm{ii}.coordSystem = 0; %polar coordinates
         fm{ii}.noiseMode = 0; %proportion
         fm{ii}.noiseDist = 1; %uniform
-        fm{ii}.square = true;
         fm{ii}.direction = 0;
 
     elseif strcmp(args.patchType,'grating')
