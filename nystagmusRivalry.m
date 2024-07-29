@@ -276,7 +276,7 @@ for a = 1:length(facInList)
 end
 
 myDesign.fac2.patch1.redFirst = [0 1]; %whether to start with red or blue
-myDesign.fac3.patch1.conditionSwitch = [0];
+myDesign.fac3.patch1.conditionSwitch = [1];
 
 myDesign.retry = 'RANDOM'; %'IMMEDIATE' or 'IGNORE';
 myDesign.maxRetry = 4;%10;  % Each condition will be retried up to this many times.
