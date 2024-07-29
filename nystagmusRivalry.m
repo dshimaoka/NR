@@ -79,7 +79,7 @@ p.addParameter('conditionSwitch', [0 1 2]);
 %patch stimuli
 p.addParameter('patchType','rdp');
 p.addParameter('dirList_first',[0]); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
-p.addParameter('speed',12); %[spatial phase in deg NOT visual angle/s]
+p.addParameter('speed',12); %[(visual angle in deg)/s]
 p.addParameter('radius',5); %aperture size [deg]
 p.addParameter('SOARange', [1000 1001]); %stimulus onset after the end of fixation
 
@@ -95,7 +95,7 @@ dotSize = 5; %dot size [pix]
 nrDots = 30; %number of dots
 
 %grating
-frequency = 0.5; %spatial frequency in cycles per degree (not pixel) 
+frequency = 0.5; %spatial frequency in cycles per visual angle in degree (not pixel) 
 
 import neurostim.*
 commandwindow;
@@ -211,8 +211,8 @@ elseif strcmp(args.patchType,'grating')
     fm{2}.orientation = '@patch1.orientation';
     fm{1}.directionPolarity = '@-2*fix(patch1.direction/180) + 1';
     fm{2}.directionPolarity = '@(2*patch2.congruent-1) * patch1.directionPolarity';
-    fm{1}.phaseSpeed = '@360*patch1.directionPolarity * patch1.speed/patch1.frameRate'; %[deg/frame]
-    fm{2}.phaseSpeed = '@360*patch2.directionPolarity * patch2.speed/patch2.frameRate'; %[deg/frame] 
+    fm{1}.phaseSpeed = '@360*patch1.directionPolarity * patch1.speed * patch1.frequency /patch1.frameRate'; %[deg/frame]
+    fm{2}.phaseSpeed = '@360*patch2.directionPolarity * patch2.speed * patch2.frequency /patch2.frameRate'; %[deg/frame] 
     %fm{2}.phase = '@patch1.phase + patch1.phaseSpeed*(patch1.frameRate+10*(1-patch2.physicalAlteration-patch2.congruent))*patch1.duration/1000 + 270*patch2.congruent'; %[deg] %works 1&2 not 0
     %fm{2}.phase = '@patch1.phase + patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 + 270'; %works in condSwitch=0(&2) not 1
     %fm{2}.phase = '@patch1.spatialPhase'; %NG0,1,2
