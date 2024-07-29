@@ -70,7 +70,6 @@ p.addRequired('subject',@(x) validateattributes(x,{'char'},{'nonempty'}));
 p.addParameter('debug',false,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 p.addParameter('tDur',4000,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % trial duration from onset of first patch (ms)
 p.addParameter('nRepPerCond',10,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % number of repeats of each condition
-%p.addParameter('tolerance',6,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % (deg) eye tolerance - radius
 p.addParameter('rewardVol',0.035,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
 
 %patch stimuli
@@ -85,10 +84,14 @@ args = p.Results;
 %% fixed parameters
 fixDuration = 300; % [ms] minimum duration of fixation to initiate patch stimuli
 iti = 1000; %[ms] inter trial interval
+patchType = 'grating';
 
 %RDP
 dotSize = 5; %dot size [pix]
 nrDots = 30; %number of dots
+
+%grating
+frequency = 2;
 
 import neurostim.*
 commandwindow;
@@ -144,33 +147,51 @@ for ii = 1:nrConds
     stimName = ['patch' num2str(ii)];
     %patch1: presented 1st, patch2: presented 2nd after SOA
     
-    % draw rdp patch
-    fm{ii} = neurostim.stimuli.rdp(c,stimName);
-    
+    if strcmp(patchType,'rdp')
+        fm{ii} = neurostim.stimuli.rdp(c,stimName);
+    elseif strcmp('patchType','grating')
+        %fm{ii} = tuning.cgabor(c,stimName); 
+        fm{ii} = neurostim.stimuli.gabor(c, stimName);
+    end
+
     %common parameters across stim
     fm{ii}.X = 0;
     fm{ii}.Y = 0;
-
-    %rdp specific parameters
-    fm{ii}.size = dotSize; %dot size [px]
-    fm{ii}.type = 0; %square dot
-    fm{ii}.maxRadius =  args.radius;%maximum radius of aperture (px)
-    fm{ii}.speed = args.speed; %dot speed (deg
     fm{ii}.direction = 0;
-    fm{ii}.nrDots = nrDots;
-    fm{ii}.coherence = 1; %dot coherence [0-1]
-    fm{ii}.motionMode = 1; %linear
-    fm{ii}.lifetime = 50;%lifetime of dots (in frames)
-    fm{ii}.dwellTime = 1;
-    fm{ii}.coordSystem = 0; %polar coordinates
-    fm{ii}.noiseMode = 0; %proportion
-    fm{ii}.noiseDist = 1; %uniform 
-    %fm{ii}.on = '@fix.off';
-    %fm{ii}.duration = args.tDur; %TODO end both patches synchronously
-    %fm{ii}.off = 'fixbhv.startTime.fixating+4000'; Cannot set .off
-    %fm{ii}.rngSeed = 1;
-    %fm{ii}.noiseWidth not used when noiseDist=1
-    %fm{ii}.truncateGauss ??
+ 
+    
+    if strcmp(patchType,'rdp')
+        %rdp specific parameters
+        fm{ii}.maxRadius =  args.radius;%maximum radius of aperture (px)
+        fm{ii}.speed = args.speed; %dot speed (deg
+        fm{ii}.size = dotSize; %dot size [px]
+        fm{ii}.type = 0; %square dot
+        fm{ii}.nrDots = nrDots;
+        fm{ii}.coherence = 1; %dot coherence [0-1]
+        fm{ii}.motionMode = 1; %linear
+        fm{ii}.lifetime = 50;%lifetime of dots (in frames)
+        fm{ii}.dwellTime = 1;
+        fm{ii}.coordSystem = 0; %polar coordinates
+        fm{ii}.noiseMode = 0; %proportion
+        fm{ii}.noiseDist = 1; %uniform
+    elseif strcmp(patchType,'grating')
+        fm{ii}.colorPolarity = args.colorPolarity;
+        fm{ii}.width = 2*max(args.radius);
+        fm{ii}.height = fm{ii}.width;
+        fm{ii}.sigma = args.radius;
+        fm{ii}.mask = 'CIRCLE';
+        % fm{ii}.X = 0;
+        % fm{ii}.Y = 0;
+        % fm{ii}.on = args.tPreBlank;%'@fix.stopTime';%'@traj.startTime'; % was .on
+        % fm{ii}.duration = tDur - args.tPreBlank;
+        fm{ii}.phaseSpeed = args.speed;
+        fm{ii}.frequency = frequency;
+        fm{ii}.contrast = 100;
+        fm{ii}.flickerMode = 'none';
+        fm{ii}.flickerFrequency = 0;
+        fm{ii}.square = true;
+    end
+    
 end
 fm{1}.addProperty('conditionSwitch', 1);
 %conditionSwitch = 0: binocular flash suppression
