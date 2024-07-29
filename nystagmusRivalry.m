@@ -175,7 +175,7 @@ for ii = 1:nrConds
         fm{ii}.noiseMode = 0; %proportion
         fm{ii}.noiseDist = 1; %uniform
     elseif strcmp(patchType,'grating')
-        fm{ii}.colorPolarity = args.colorPolarity;
+        %fm{ii}.colorPolarity = args.colorPolarity;
         fm{ii}.width = 2*max(args.radius);
         fm{ii}.height = fm{ii}.width;
         fm{ii}.sigma = args.radius;
