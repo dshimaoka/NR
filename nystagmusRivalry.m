@@ -213,7 +213,7 @@ elseif strcmp(args.patchType,'grating')
     fm{2}.directionPolarity = '@(2*patch2.congruent-1) * patch1.directionPolarity';
     fm{1}.phaseSpeed = '@360*patch1.directionPolarity * patch1.speed/patch1.frameRate'; %[deg/frame]
     fm{2}.phaseSpeed = '@360*patch2.directionPolarity * patch2.speed/patch2.frameRate'; %[deg/frame] 
-    fm{2}.phase = '@patch1.phase + patch1.phaseSpeed*(patch1.frameRate+1)*patch1.duration/1000 + 270*patch2.congruent'; %[deg]
+    fm{2}.phase = '@patch1.phase + patch1.phaseSpeed*(patch1.frameRate+10)*patch1.duration/1000 + 270*patch2.congruent'; %[deg]
 end
 
 %360*args.tf1List / c.screen.frameRate; % (deg/frame) TF = cycles/s, so spd = 360*TF / frameRate = (deg/s) / (fr/s)
