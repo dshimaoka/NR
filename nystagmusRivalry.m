@@ -73,6 +73,7 @@ p.addParameter('nRepPerCond',10,@(x) validateattributes(x,{'numeric'},{'scalar',
 p.addParameter('rewardVol',0.035,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
 
 %patch stimuli
+p.addParameter('patchType','rdp');
 p.addParameter('dirList_first',[0]); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
 p.addParameter('speed',4); %[deg]
 p.addParameter('radius',5); %aperture size [pix]
@@ -148,7 +149,7 @@ for ii = 1:nrConds
     stimName = ['patch' num2str(ii)];
     %patch1: presented 1st, patch2: presented 2nd after SOA
     
-    if strcmp(patchType,'rdp')
+    if strcmp(patchType,args.patchType)
         fm{ii} = neurostim.stimuli.rdp(c,stimName);
         %rdp specific parameters
         fm{ii}.maxRadius =  args.radius;%maximum radius of aperture (px)
@@ -204,7 +205,7 @@ fm{2}.duration = '@cic.tDur - cic.jitteredSOA';
 fm{2}.addProperty('congruent', '@fix(patch1.conditionSwitch/2)'); %whether the second patch moves the same direction with the 1st patch
 fm{2}.addProperty('physicalAlteration','@rem(patch1.conditionSwitch, 2)')
 
-if strcmp(patchType,'rdp')
+if strcmp(patchType,args.patchType)
     fm{2}.direction = '@patch1.direction+180*(1-patch2.congruent)';
 elseif strcmp(patchType,'grating')
     fm{1}.orientation = '@mod(patch1.direction, 180) - 90';
