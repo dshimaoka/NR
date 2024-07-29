@@ -213,6 +213,7 @@ elseif strcmp(args.patchType,'grating')
     fm{2}.directionPolarity = '@(2*patch2.congruent-1) * patch1.directionPolarity';
     fm{1}.phaseSpeed = '@patch1.directionPolarity * patch1.speed';
     fm{2}.phaseSpeed = '@patch2.directionPolarity * patch2.speed';
+    fm{2}.phase = '@patch1.phase';
 end
 
 %% ========== Add required behaviours =========
