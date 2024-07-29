@@ -87,7 +87,7 @@ p.parse(subject,varargin{:});
 args = p.Results;
 
 %% fixed parameters
-fixDuration = 300; % [ms] minimum duration of fixation to initiate patch stimuli
+fixDuration = 600; % [ms] minimum duration of fixation to initiate patch stimuli
 iti = 1000; %[ms] inter trial interval
 
 %RDP
@@ -197,9 +197,9 @@ fm{1}.addProperty('redFirst',0);
 %fm{1}.redFirst = plugins.jitter(c,{0, 1},'distribution','1ofN'); %NG always return 1
 fm{1}.color = '@[patch1.redFirst 0.0 1-patch1.redFirst 0.5]'; 
 fm{2}.color = '@[1-patch1.redFirst 0.0 patch1.redFirst 0.5]'; 
-fm{1}.on = '@fixstim.off'; %fist stimulus
+fm{1}.on = '@fixstim.off'; %first stimulus
 fm{2}.on = '@patch1.on + cic.jitteredSOA'; %2nd stimulus
-fm{1}.duration = '@cic.tDur  - patch2.physicalAlteration * (cic.tDur - cic.jitteredSOA)';
+fm{1}.duration = '@cic.tDur  - patch2.physicalAlteration * (cic.tDur - cic.jitteredSOA)';  %if physicalAlteration=1, terminate after jitteredSOA
 fm{2}.duration = '@cic.tDur - cic.jitteredSOA';
 fm{2}.addProperty('congruent', '@fix(patch1.conditionSwitch/2)'); %whether the second patch moves the same direction with the 1st patch
 fm{2}.addProperty('physicalAlteration','@rem(patch1.conditionSwitch, 2)')
@@ -216,11 +216,8 @@ elseif strcmp(args.patchType,'grating')
     %fm{2}.phase = '@patch1.phase + patch1.phaseSpeed*(patch1.frameRate+10*(1-patch2.physicalAlteration-patch2.congruent))*patch1.duration/1000 + 270*patch2.congruent'; %[deg] %works 1&2 not 0
     %fm{2}.phase = '@patch1.phase + patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 + 270'; %works in condSwitch=0(&2) not 1
     %fm{2}.phase = '@patch1.spatialPhase'; %NG0,1,2
-    %fm{1}.phase = '@mod(-patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 - 270 - 90*patch2.physicalAlteration, 360)';%works in condSwitch=0(&2) not 1
-    %fm{2}.phase = 0;
-    fm{1}.phase = 0;
-    fm{2}.phase = '@mod(patch1.phase + patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 + 270+90*patch2.physicalAlteration, 360)'; %works in condSwitch=0(&2) not 1
-    
+    fm{1}.phase = '@mod(-patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 - 270 - 90*patch2.physicalAlteration, 360)';%works in condSwitch=0(&2) not 1
+    fm{2}.phase = 0;  
 end
 
 %360*args.tf1List / c.screen.frameRate; % (deg/frame) TF = cycles/s, so spd = 360*TF / frameRate = (deg/s) / (fr/s)
