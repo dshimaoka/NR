@@ -163,6 +163,8 @@ for ii = 1:nrConds
         fm{ii}.noiseMode = 0; %proportion
         fm{ii}.noiseDist = 1; %uniform
         fm{ii}.square = true;
+        fm{ii}.direction = 0;
+
     elseif strcmp(patchType,'grating')
         %fm{ii} = tuning.cgabor(c,stimName); 
         fm{ii} = neurostim.stimuli.gabor(c, stimName);
@@ -171,21 +173,18 @@ for ii = 1:nrConds
         fm{ii}.height = fm{ii}.width;
         fm{ii}.sigma = args.radius;
         fm{ii}.mask = 'CIRCLE';
-        % fm{ii}.X = 0;
-        % fm{ii}.Y = 0;
-        % fm{ii}.on = args.tPreBlank;%'@fix.stopTime';%'@traj.startTime'; % was .on
-        % fm{ii}.duration = tDur - args.tPreBlank;
-        fm{ii}.phaseSpeed = args.speed;
         fm{ii}.frequency = frequency;
         fm{ii}.contrast = 100;
         fm{ii}.flickerMode = 'none';
         fm{ii}.flickerFrequency = 0;
+        fm{ii}.orientation = 0;
+        fm{ii}.addProperty('direction',0);
+        fm{ii}.addProperty('directionPolarity',0);
     end
     
     %common parameters across stim
     fm{ii}.X = 0;
     fm{ii}.Y = 0;
-    fm{ii}.direction = 0;
 
 end
 fm{1}.addProperty('conditionSwitch', 1);
@@ -203,7 +202,17 @@ fm{1}.duration = '@cic.tDur  - patch2.physicalAlteration * (cic.tDur - cic.jitte
 fm{2}.duration = '@cic.tDur - cic.jitteredSOA';
 fm{2}.addProperty('congruent', '@fix(patch1.conditionSwitch/2)'); %whether the second patch moves the same direction with the 1st patch
 fm{2}.addProperty('physicalAlteration','@rem(patch1.conditionSwitch, 2)')
-fm{2}.direction = '@patch1.direction+180*(1-patch2.congruent)';
+
+if strcmp(patchType,'rdp')
+    fm{2}.direction = '@patch1.direction+180*(1-patch2.congruent)';
+elseif strcmp(patchType,'grating')
+    fm{1}.orientation = '@mod(patch1.direction, 180)';
+    fm{2}.orientation = '@patch1.orientation';
+    fm{1}.directionPolarity = '@-2*fix(patch1.direction/180) + 1';
+    fm{2}.directionPolarity = '@(2*patch2.congruent-1) * patch1.directionPolarity';
+    fm{1}.phaseSpeed = '@patch1.directionPolarity * args.speed';
+    fm{2}.phaseSpeed = '@patch1.directionPolarity * args.speed';
+end
 
 %% ========== Add required behaviours =========
 %Subject's 2AFC response to control inter-trial interval ... not necessary?
