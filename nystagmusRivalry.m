@@ -211,10 +211,12 @@ elseif strcmp(args.patchType,'grating')
     fm{2}.orientation = '@patch1.orientation';
     fm{1}.directionPolarity = '@-2*fix(patch1.direction/180) + 1';
     fm{2}.directionPolarity = '@(2*patch2.congruent-1) * patch1.directionPolarity';
-    fm{1}.phaseSpeed = '@patch1.directionPolarity * patch1.speed';
-    fm{2}.phaseSpeed = '@patch2.directionPolarity * patch2.speed';
-    fm{2}.phase = '@patch1.phase'; % starting phase
+    fm{1}.phaseSpeed = '@360*patch1.directionPolarity * patch1.speed/cic.screen.frameRate'; %cycles/s
+    fm{2}.phaseSpeed = '@360*patch2.directionPolarity * patch2.speed/cic.screen.frameRate'; %cycles/s
+    %fm{2}.phase = '@patch1.phase'; % starting phase
 end
+
+%360*args.tf1List / c.screen.frameRate; % (deg/frame) TF = cycles/s, so spd = 360*TF / frameRate = (deg/s) / (fr/s)
 
 %% ========== Add required behaviours =========
 %Subject's 2AFC response to control inter-trial interval ... not necessary?
