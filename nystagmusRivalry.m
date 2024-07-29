@@ -88,6 +88,7 @@ args = p.Results;
 
 %% fixed parameters
 fixDuration = 300; % [ms] minimum duration of fixation to initiate patch stimuli
+fixationDeadline = 5000; %[ms] maximum time to initiate a trial 
 iti = 1000; %[ms] inter trial interval
 
 %RDP
@@ -233,7 +234,7 @@ end
 
 %Maintain gaze on the fixation point until the trial end
 g = behaviors.fixate(c,'fixbhv');
-g.from = 5000; % If fixation has not started at this time, move to the next trial
+g.from = fixationDeadline; % If fixation has not started at this time, move to the next trial
 g.to = '@patch2.off'; %'@traj.off'; % stop tracking when trajectory ends
 g.X = '@patch1.X'; %'@traj.X';
 g.Y = '@patch1.Y'; %'@traj.Y';
@@ -284,7 +285,7 @@ for a = 1:length(facInList)
     myDesign.(sprintf('fac%d',a)).patch1.(facOutList{a}) = args.(facInList{a});
 end
 
-myDesign.fac2.patch1.redFirst = 0;%[0 1]; %whether to start with red or blue
+myDesign.fac2.patch1.redFirst = [0 1]; %whether to start with red or blue
 myDesign.fac3.patch1.conditionSwitch = args.conditionSwitch;
 
 myDesign.retry = 'RANDOM'; %'IMMEDIATE' or 'IGNORE';
