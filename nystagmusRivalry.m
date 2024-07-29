@@ -79,7 +79,7 @@ p.addParameter('conditionSwitch', [0 1 2]);
 %patch stimuli
 p.addParameter('patchType','rdp');
 p.addParameter('dirList_first',[0]); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
-p.addParameter('speed',4); %[deg]
+p.addParameter('speed',0.1); %[deg/s]
 p.addParameter('radius',5); %aperture size [deg?]
 p.addParameter('SOARange', [1500 2500]); %stimulus onset after the end of fixation
 
