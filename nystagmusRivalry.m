@@ -176,7 +176,7 @@ for ii = 1:nrConds
         fm{ii}.mask = 'CIRCLE';
         fm{ii}.frequency = frequency;
         fm{ii}.contrast = 1;
-        fm{ii}.flickerMode = 'sine';%'none';
+        fm{ii}.flickerMode = 'sinecontrast';%'none';
         fm{ii}.flickerFrequency = 0;
         fm{ii}.orientation = 0;
         fm{ii}.addProperty('direction',0);
