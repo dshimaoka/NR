@@ -85,7 +85,6 @@ args = p.Results;
 %% fixed parameters
 fixDuration = 300; % [ms] minimum duration of fixation to initiate patch stimuli
 iti = 1000; %[ms] inter trial interval
-patchType = 'grating';
 
 %RDP
 dotSize = 5; %dot size [pix]
@@ -149,7 +148,7 @@ for ii = 1:nrConds
     stimName = ['patch' num2str(ii)];
     %patch1: presented 1st, patch2: presented 2nd after SOA
     
-    if strcmp(patchType,args.patchType)
+    if strcmp(args.patchType, 'rdp')
         fm{ii} = neurostim.stimuli.rdp(c,stimName);
         %rdp specific parameters
         fm{ii}.maxRadius =  args.radius;%maximum radius of aperture (px)
@@ -167,7 +166,7 @@ for ii = 1:nrConds
         fm{ii}.square = true;
         fm{ii}.direction = 0;
 
-    elseif strcmp(patchType,'grating')
+    elseif strcmp(args.patchType,'grating')
         fm{ii} = neurostim.stimuli.gabor(c, stimName);
         fm{ii}.width = 2*max(args.radius);
         fm{ii}.height = fm{ii}.width;
@@ -205,9 +204,9 @@ fm{2}.duration = '@cic.tDur - cic.jitteredSOA';
 fm{2}.addProperty('congruent', '@fix(patch1.conditionSwitch/2)'); %whether the second patch moves the same direction with the 1st patch
 fm{2}.addProperty('physicalAlteration','@rem(patch1.conditionSwitch, 2)')
 
-if strcmp(patchType,args.patchType)
+if strcmp(args.patchType, 'rdp')
     fm{2}.direction = '@patch1.direction+180*(1-patch2.congruent)';
-elseif strcmp(patchType,'grating')
+elseif strcmp(args.patchType,'grating')
     fm{1}.orientation = '@mod(patch1.direction, 180) - 90';
     fm{2}.orientation = '@patch1.orientation';
     fm{1}.directionPolarity = '@-2*fix(patch1.direction/180) + 1';
