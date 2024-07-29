@@ -81,7 +81,7 @@ p.addParameter('patchType','rdp');
 p.addParameter('dirList_first',[0]); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
 p.addParameter('speed',0.1); %[deg/s]
 p.addParameter('radius',5); %aperture size [deg]
-p.addParameter('SOARange', [1500 2500]); %stimulus onset after the end of fixation
+p.addParameter('SOARange', [1000 1001]); %stimulus onset after the end of fixation
 
 p.parse(subject,varargin{:});
 args = p.Results;
@@ -95,7 +95,7 @@ dotSize = 5; %dot size [pix]
 nrDots = 30; %number of dots
 
 %grating
-frequency = 0.1; %spatial frequency in cycles per degree (not pixel) 
+frequency = 0.5; %spatial frequency in cycles per degree (not pixel) 
 
 import neurostim.*
 commandwindow;
