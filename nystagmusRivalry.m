@@ -106,7 +106,7 @@ c.addProperty('fixDuration', fixDuration);
 c.addProperty('jitteredSOA',[]);
 c.jitteredSOA = plugins.jitter(c,{args.SOARange(1), args.SOARange(2)}); 
 c.addProperty('tDur',args.tDur);
-c.addProperty('conditionSwitch', 0);
+c.addProperty('conditionSwitch', 2);
 %conditionSwitch = 0: binocular flash suppression
 %conditionSwitch = 1: physical alteration
 %conditionSwitch = 2: congruent direction between two patches
