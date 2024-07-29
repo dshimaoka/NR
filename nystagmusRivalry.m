@@ -73,17 +73,21 @@ p.addParameter('nRepPerCond',10,@(x) validateattributes(x,{'numeric'},{'scalar',
 %p.addParameter('tolerance',6,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % (deg) eye tolerance - radius
 p.addParameter('rewardVol',0.035,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
 
-%for RDP
+%patch stimuli
 p.addParameter('dirList_first',[0 90]); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
 p.addParameter('speed',4); %[deg]
 p.addParameter('radius',5); %aperture size [pix]
-p.addParameter('dotSize',5); %dot size [pix]
-p.addParameter('nrDots',30); %number of dots
 p.addParameter('SOARange', [1500 2500]); %stimulus onset after the end of fixation
 
 p.parse(subject,varargin{:});
 args = p.Results;
 
+%% fixed parameters
+fixDuration = 300; % [ms] minimum duration of fixation to initiate patch stimuli
+
+%RDP
+dotSize = 5; %dot size [pix]
+nrDots = 30; %number of dots
 
 import neurostim.*
 commandwindow;
@@ -98,9 +102,10 @@ commandwindow;
 c = marmolab.rigcfg('debug',args.debug, p.Unmatched); % set to false to save githash at start of each experiment!
 %c = myRig;
 c.paradigm = 'nystagmusRivalry';
-c.addProperty('jitteredSOA',[])
+c.addProperty('fixDuration', fixDuration);
+c.addProperty('jitteredSOA',[]);
 c.jitteredSOA = plugins.jitter(c,{args.SOARange(1), args.SOARange(2)}); 
-c.addProperty('tDur',args.tDur)
+c.addProperty('tDur',args.tDur);
 
 if ~args.debug % log git hash
     hash = marmolab.getGitHash(fileparts(mfilename('fullpath')));
@@ -122,7 +127,7 @@ f.shape = 'CIRC';               %The seemingly local variable "f" is actually a 
 f.size = 0.25; % units?
 f.color = [1 1 1];
 f.on=0;                         % What time should the stimulus come on? (all times are in ms)
-f.duration = '@fixbhv.startTime.fixating+300'; % Show spot briefly after fixation acquired
+f.duration = '@fixbhv.startTime.fixating+cic.fixDuration'; % Show spot briefly after fixation acquired
 f.X = 0;
 f.Y = 0;
 
@@ -146,12 +151,12 @@ for ii = 1:nrConds
     fm{ii}.Y = 0;
 
     %rdp specific parameters
-    fm{ii}.size = args.dotSize; %dot size [px]
+    fm{ii}.size = dotSize; %dot size [px]
     fm{ii}.type = 0; %square dot
     fm{ii}.maxRadius =  args.radius;%maximum radius of aperture (px)
     fm{ii}.speed = args.speed; %dot speed (deg
     fm{ii}.direction = 0;
-    fm{ii}.nrDots = args.nrDots;
+    fm{ii}.nrDots = nrDots;
     fm{ii}.coherence = 1; %dot coherence [0-1]
     fm{ii}.motionMode = 1; %linear
     fm{ii}.lifetime = 50;%lifetime of dots (in frames)
