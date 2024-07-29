@@ -106,6 +106,10 @@ c.addProperty('fixDuration', fixDuration);
 c.addProperty('jitteredSOA',[]);
 c.jitteredSOA = plugins.jitter(c,{args.SOARange(1), args.SOARange(2)}); 
 c.addProperty('tDur',args.tDur);
+c.addProperty('conditionSwitch', 0);
+%conditionSwitch = 0: binocular flash suppression
+%conditionSwitch = 1: physical alteration
+%conditionSwitch = 2: congruent direction between two patches
 
 if ~args.debug % log git hash
     hash = marmolab.getGitHash(fileparts(mfilename('fullpath')));
@@ -179,7 +183,8 @@ fm{1}.on = '@fixstim.off'; %fist stimulus
 fm{2}.on = '@patch1.on + cic.jitteredSOA'; %2nd stimulus
 fm{1}.duration = '@cic.tDur';%args.tDur;
 fm{2}.duration = '@cic.tDur - cic.jitteredSOA';%args.tDur - 1000; %TODO introduce jitter
-fm{2}.addProperty('congruent', 1); %whether the second patch moves the same direction with the 1st patch
+fm{2}.addProperty('congruent', '@fix(cic.conditionSwitch/2)'); %whether the second patch moves the same direction with the 1st patch
+fm{2}.addProperty('physicalAlteration','@rem(cic.conditionSwitch, 2)')
 fm{2}.direction = '@patch1.direction+180*(1-patch2.congruent)';
 
 %% ========== Add required behaviours =========
@@ -243,8 +248,8 @@ for a = 1:length(facInList)
     myDesign.(sprintf('fac%d',a)).patch1.(facOutList{a}) = args.(facInList{a});
 end
 
-myDesign.fac2.patch2.congruent = [0 1]; %whether the 2nd stimulus moves in the same direction to 1st stim
-myDesign.fac3.patch1.redFirst = [0 1]; %whether to start with red or blue
+%myDesign.fac2.patch2.congruent = [0 1]; %whether the 2nd stimulus moves in the same direction to 1st stim
+myDesign.fac2.patch1.redFirst = [0 1]; %whether to start with red or blue
 
 myDesign.retry = 'RANDOM'; %'IMMEDIATE' or 'IGNORE';
 myDesign.maxRetry = 4;%10;  % Each condition will be retried up to this many times.
