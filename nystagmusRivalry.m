@@ -149,18 +149,6 @@ for ii = 1:nrConds
     
     if strcmp(patchType,'rdp')
         fm{ii} = neurostim.stimuli.rdp(c,stimName);
-    elseif strcmp('patchType','grating')
-        %fm{ii} = tuning.cgabor(c,stimName); 
-        fm{ii} = neurostim.stimuli.gabor(c, stimName);
-    end
-
-    %common parameters across stim
-    fm{ii}.X = 0;
-    fm{ii}.Y = 0;
-    fm{ii}.direction = 0;
- 
-    
-    if strcmp(patchType,'rdp')
         %rdp specific parameters
         fm{ii}.maxRadius =  args.radius;%maximum radius of aperture (px)
         fm{ii}.speed = args.speed; %dot speed (deg
@@ -175,6 +163,8 @@ for ii = 1:nrConds
         fm{ii}.noiseMode = 0; %proportion
         fm{ii}.noiseDist = 1; %uniform
     elseif strcmp(patchType,'grating')
+        %fm{ii} = tuning.cgabor(c,stimName); 
+        fm{ii} = neurostim.stimuli.gabor(c, stimName);
         %fm{ii}.colorPolarity = args.colorPolarity;
         fm{ii}.width = 2*max(args.radius);
         fm{ii}.height = fm{ii}.width;
@@ -192,6 +182,11 @@ for ii = 1:nrConds
         fm{ii}.square = true;
     end
     
+    %common parameters across stim
+    fm{ii}.X = 0;
+    fm{ii}.Y = 0;
+    fm{ii}.direction = 0;
+
 end
 fm{1}.addProperty('conditionSwitch', 1);
 %conditionSwitch = 0: binocular flash suppression
