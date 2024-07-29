@@ -283,7 +283,7 @@ for a = 1:length(facInList)
     myDesign.(sprintf('fac%d',a)).patch1.(facOutList{a}) = args.(facInList{a});
 end
 
-myDesign.fac2.patch1.redFirst = [0 1]; %whether to start with red or blue
+myDesign.fac2.patch1.redFirst = 0;%[0 1]; %whether to start with red or blue
 myDesign.fac3.patch1.conditionSwitch = args.conditionSwitch;
 
 myDesign.retry = 'RANDOM'; %'IMMEDIATE' or 'IGNORE';
