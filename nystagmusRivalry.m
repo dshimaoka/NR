@@ -167,9 +167,7 @@ for ii = 1:nrConds
         fm{ii}.direction = 0;
 
     elseif strcmp(patchType,'grating')
-        %fm{ii} = tuning.cgabor(c,stimName); 
         fm{ii} = neurostim.stimuli.gabor(c, stimName);
-        %fm{ii}.colorPolarity = args.colorPolarity;
         fm{ii}.width = 2*max(args.radius);
         fm{ii}.height = fm{ii}.width;
         fm{ii}.sigma = args.radius;
@@ -182,6 +180,7 @@ for ii = 1:nrConds
         fm{ii}.addProperty('direction',0);
         fm{ii}.addProperty('directionPolarity',0);
         fm{ii}.addProperty('speed',args.speed); % 
+        %TODO: align temporal phase between patches?
     end
     
     %common parameters across stim
@@ -279,7 +278,7 @@ end
 
 %myDesign.fac2.patch2.congruent = [0 1]; %whether the 2nd stimulus moves in the same direction to 1st stim
 myDesign.fac2.patch1.redFirst = [0 1]; %whether to start with red or blue
-myDesign.fac3.patch1.conditionSwitch = [0 1 2];
+myDesign.fac3.patch1.conditionSwitch = [2];
 
 myDesign.retry = 'RANDOM'; %'IMMEDIATE' or 'IGNORE';
 myDesign.maxRetry = 4;%10;  % Each condition will be retried up to this many times.
