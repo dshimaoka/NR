@@ -189,6 +189,7 @@ for ii = 1:nrConds
     %common parameters across stim
     fm{ii}.X = 0;
     fm{ii}.Y = 0;
+    fm{ii}.addProperty('frameRate', c.screen.frameRate);
 
 end
 fm{1}.addProperty('conditionSwitch', 1);
@@ -211,8 +212,8 @@ elseif strcmp(args.patchType,'grating')
     fm{2}.orientation = '@patch1.orientation';
     fm{1}.directionPolarity = '@-2*fix(patch1.direction/180) + 1';
     fm{2}.directionPolarity = '@(2*patch2.congruent-1) * patch1.directionPolarity';
-    fm{1}.phaseSpeed = '@360*patch1.directionPolarity * patch1.speed/cic.screen.frameRate'; %cycles/s
-    fm{2}.phaseSpeed = '@360*patch2.directionPolarity * patch2.speed/cic.screen.frameRate'; %cycles/s
+    fm{1}.phaseSpeed = '@360*patch1.directionPolarity * patch1.speed/patch1.frameRate';%/cic.screen.frameRate'; %cycles/s
+    fm{2}.phaseSpeed = '@360*patch2.directionPolarity * patch2.speed/patch2.frameRate';%/cic.screen.frameRate'; %cycles/s
     %fm{2}.phase = '@patch1.phase'; % starting phase
 end
 
