@@ -87,7 +87,7 @@ p.parse(subject,varargin{:});
 args = p.Results;
 
 %% fixed parameters
-fixDuration = 600; % [ms] minimum duration of fixation to initiate patch stimuli
+fixDuration = 300; % [ms] minimum duration of fixation to initiate patch stimuli
 iti = 1000; %[ms] inter trial interval
 
 %RDP
