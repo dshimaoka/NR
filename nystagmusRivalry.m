@@ -114,6 +114,7 @@ c.addProperty('fixDuration', fixDuration);
 c.addProperty('jitteredSOA',[]);
 c.jitteredSOA = plugins.jitter(c,{args.SOARange(1), args.SOARange(2)}); 
 c.addProperty('tDur',args.tDur);
+c.screen.color.background = [0 0 0];
 
 if ~args.debug % log git hash
     hash = marmolab.getGitHash(fileparts(mfilename('fullpath')));
@@ -195,8 +196,8 @@ fm{1}.addProperty('conditionSwitch', 1);
 
 fm{1}.addProperty('redFirst',0);
 %fm{1}.redFirst = plugins.jitter(c,{0, 1},'distribution','1ofN'); %NG always return 1
-fm{1}.color = '@[patch1.redFirst 0.0 1-patch1.redFirst 0]+0.5'; %'@[patch1.redFirst 0.0 1-patch1.redFirst 0.5]'; 
-fm{2}.color = '@[1-patch1.redFirst 0.0 patch1.redFirst 0]+0.5'; %'@[1-patch1.redFirst 0.0 patch1.redFirst 0.5]'; 
+fm{1}.color = '@[patch1.redFirst 0.0 1-patch1.redFirst 0.5]'; 
+fm{2}.color = '@[1-patch1.redFirst 0.0 patch1.redFirst 0.5]'; 
 fm{1}.on = '@fixstim.off'; %first stimulus
 fm{2}.on = '@patch1.on + cic.jitteredSOA'; %2nd stimulus
 fm{1}.duration = '@cic.tDur  - patch2.physicalAlteration * (cic.tDur - cic.jitteredSOA)';  %if physicalAlteration=1, terminate after jitteredSOA
