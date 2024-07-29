@@ -216,7 +216,7 @@ elseif strcmp(args.patchType,'grating')
     %fm{2}.phase = '@patch1.phase + patch1.phaseSpeed*(patch1.frameRate+10*(1-patch2.physicalAlteration-patch2.congruent))*patch1.duration/1000 + 270*patch2.congruent'; %[deg] %works 1&2 not 0
     %fm{2}.phase = '@patch1.phase + patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 + 270'; %works in condSwitch=0(&2) not 1
     %fm{2}.phase = '@patch1.spatialPhase'; %NG0,1,2
-    fm{1}.phase = '@mod(-patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 - 270, 360)';
+    fm{1}.phase = '@mod(-patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 - 270 + 90*patch2.physicalAlteration, 360)';%works in condSwitch=0(&2) not 1
     fm{2}.phase = 0;
 end
 
