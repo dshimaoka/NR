@@ -80,7 +80,7 @@ p.addParameter('conditionSwitch', [0 1 2]);
 p.addParameter('patchType','rdp');
 p.addParameter('dirList_first',[0]); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
 p.addParameter('speed',0.1); %[deg/s]
-p.addParameter('radius',5); %aperture size [deg?]
+p.addParameter('radius',5); %aperture size [deg]
 p.addParameter('SOARange', [1500 2500]); %stimulus onset after the end of fixation
 
 p.parse(subject,varargin{:});
@@ -95,8 +95,7 @@ dotSize = 5; %dot size [pix]
 nrDots = 30; %number of dots
 
 %grating
-frequency = 0.2; %spatial frequency in cycles per degree? (not pixel) 
-%TODO: convert to cycles per degree
+frequency = 0.2; %spatial frequency in cycles per degree (not pixel) 
 
 import neurostim.*
 commandwindow;
@@ -182,7 +181,7 @@ for ii = 1:nrConds
         fm{ii}.orientation = 0;
         fm{ii}.addProperty('direction',0);
         fm{ii}.addProperty('directionPolarity',0);
-        fm{ii}.addProperty('speed',args.speed); % 
+        fm{ii}.addProperty('speed',args.speed);  
         %TODO: align temporal phase between patches?
     end
     
@@ -212,9 +211,10 @@ elseif strcmp(args.patchType,'grating')
     fm{2}.orientation = '@patch1.orientation';
     fm{1}.directionPolarity = '@-2*fix(patch1.direction/180) + 1';
     fm{2}.directionPolarity = '@(2*patch2.congruent-1) * patch1.directionPolarity';
-    fm{1}.phaseSpeed = '@360*patch1.directionPolarity * patch1.speed/patch1.frameRate';%/cic.screen.frameRate'; %cycles/s
-    fm{2}.phaseSpeed = '@360*patch2.directionPolarity * patch2.speed/patch2.frameRate';%/cic.screen.frameRate'; %cycles/s
+    fm{1}.phaseSpeed = '@360*patch1.directionPolarity * patch1.speed/patch1.frameRate';
+    fm{2}.phaseSpeed = '@360*patch2.directionPolarity * patch2.speed/patch2.frameRate';
     %fm{2}.phase = '@patch1.phase'; % starting phase
+    fm{2}.phase = '@patch1.phase + patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000';
 end
 
 %360*args.tf1List / c.screen.frameRate; % (deg/frame) TF = cycles/s, so spd = 360*TF / frameRate = (deg/s) / (fr/s)
