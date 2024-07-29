@@ -183,7 +183,7 @@ fm{2}.color = '@[1-patch1.redFirst 0.0 patch1.redFirst 0.5]';
 fm{1}.on = '@fixstim.off'; %fist stimulus
 fm{2}.on = '@patch1.on + cic.jitteredSOA'; %2nd stimulus
 fm{1}.duration = '@cic.tDur  - patch2.physicalAlteration * (cic.tDur - cic.jitteredSOA)';
-fm{2}.duration = '@cic.tDur';% - cic.jitteredSOA';
+fm{2}.duration = '@cic.tDur - cic.jitteredSOA';
 fm{2}.addProperty('congruent', '@fix(cic.conditionSwitch/2)'); %whether the second patch moves the same direction with the 1st patch
 fm{2}.addProperty('physicalAlteration','@rem(cic.conditionSwitch, 2)')
 fm{2}.direction = '@patch1.direction+180*(1-patch2.congruent)';
@@ -199,7 +199,7 @@ fm{2}.direction = '@patch1.direction+180*(1-patch2.congruent)';
 %Maintain gaze on the fixation point until the trial end
 g = behaviors.fixate(c,'fixbhv');
 g.from = 5000; % If fixation has not started at this time, move to the next trial
-g.to = '@patch1.off'; %'@traj.off'; % stop tracking when trajectory ends
+g.to = '@patch2.off'; %'@traj.off'; % stop tracking when trajectory ends
 g.X = '@patch1.X'; %'@traj.X';
 g.Y = '@patch1.Y'; %'@traj.Y';
 g.tolerance = args.radius; % (deg) allowed eye position error - should be aiming to get this as small as possible
