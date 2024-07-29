@@ -180,6 +180,7 @@ for ii = 1:nrConds
         fm{ii}.orientation = 0;
         fm{ii}.addProperty('direction',0);
         fm{ii}.addProperty('directionPolarity',0);
+        fm{ii}.addProperty('speed',args.speed); % 
     end
     
     %common parameters across stim
@@ -210,8 +211,8 @@ elseif strcmp(patchType,'grating')
     fm{2}.orientation = '@patch1.orientation';
     fm{1}.directionPolarity = '@-2*fix(patch1.direction/180) + 1';
     fm{2}.directionPolarity = '@(2*patch2.congruent-1) * patch1.directionPolarity';
-    fm{1}.phaseSpeed = '@patch1.directionPolarity * args.speed';
-    fm{2}.phaseSpeed = '@patch1.directionPolarity * args.speed';
+    fm{1}.phaseSpeed = '@patch1.directionPolarity * patch1.speed';
+    fm{2}.phaseSpeed = '@patch1.directionPolarity * patch2.speed';
 end
 
 %% ========== Add required behaviours =========
