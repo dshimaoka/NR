@@ -162,6 +162,7 @@ for ii = 1:nrConds
         fm{ii}.coordSystem = 0; %polar coordinates
         fm{ii}.noiseMode = 0; %proportion
         fm{ii}.noiseDist = 1; %uniform
+        fm{ii}.square = true;
     elseif strcmp(patchType,'grating')
         %fm{ii} = tuning.cgabor(c,stimName); 
         fm{ii} = neurostim.stimuli.gabor(c, stimName);
@@ -179,7 +180,6 @@ for ii = 1:nrConds
         fm{ii}.contrast = 100;
         fm{ii}.flickerMode = 'none';
         fm{ii}.flickerFrequency = 0;
-        fm{ii}.square = true;
     end
     
     %common parameters across stim
