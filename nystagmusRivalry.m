@@ -84,6 +84,7 @@ args = p.Results;
 
 %% fixed parameters
 fixDuration = 300; % [ms] minimum duration of fixation to initiate patch stimuli
+iti = 1000; %[ms] inter trial interval
 
 %RDP
 dotSize = 5; %dot size [pix]
@@ -181,8 +182,8 @@ fm{1}.color = '@[patch1.redFirst 0.0 1-patch1.redFirst 0.5]';
 fm{2}.color = '@[1-patch1.redFirst 0.0 patch1.redFirst 0.5]'; 
 fm{1}.on = '@fixstim.off'; %fist stimulus
 fm{2}.on = '@patch1.on + cic.jitteredSOA'; %2nd stimulus
-fm{1}.duration = '@cic.jitteredSOA';%'@cic.tDur  - patch2.physicalAlteration * (cic.tDur - cic.jitteredSOA)';
-fm{2}.duration = '@cic.tDur - cic.jitteredSOA';
+fm{1}.duration = '@cic.tDur  - patch2.physicalAlteration * (cic.tDur - cic.jitteredSOA)';
+fm{2}.duration = '@cic.tDur';% - cic.jitteredSOA';
 fm{2}.addProperty('congruent', '@fix(cic.conditionSwitch/2)'); %whether the second patch moves the same direction with the 1st patch
 fm{2}.addProperty('physicalAlteration','@rem(cic.conditionSwitch, 2)')
 fm{2}.direction = '@patch1.direction+180*(1-patch2.congruent)';
@@ -237,7 +238,7 @@ end
 c.trialDuration = Inf; %'@choice.stopTime';       %End the trial as soon as the 2AFC response is made.
 % c.trialDuration = '@choice.stopTime + faces.duration'; %cuesaccde
 % c.trialDuration = '@tarBr.startTime.fixating + tarBr.ps + 300'; %OcuFol
-c.iti = 1000;
+c.iti = iti;
 
 %  Specify experimental conditions
 % For threshold estimation, we'd just vary speed
