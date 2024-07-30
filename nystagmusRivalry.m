@@ -119,7 +119,7 @@ c.addProperty('fixDuration', fixDuration);
 c.addProperty('jitteredSOA',[]);
 c.jitteredSOA = plugins.jitter(c,{args.SOARange(1), args.SOARange(2)}); 
 c.addProperty('tDur',args.tDur);
-c.screen.color.background = [0 0 0];
+c.screen.color.background = 0.5+[0 0 0];
 c.addProperty('redLuminance', redLuminance);
 
 if ~args.debug % log git hash
