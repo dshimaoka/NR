@@ -95,7 +95,7 @@ iti = 1000; %[ms] inter trial interval
 redLuminance = 171/255; %Fraser ... Miller 2023
 
 %RDP
-dotSize = 5; %dot size [pix]
+dotSize = 1;%5; %dot size [pix]
 nrDots = 200; %number of dots
 
 %grating
