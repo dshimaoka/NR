@@ -244,7 +244,7 @@ elseif strcmp(args.patchType,'grating')
     mmo = neurostim.stimuli.noiseradialgrid(c, 'maskGrating_outer');
     mmo.nRadii = 1;
     mmo.nWedges = 1;
-    mmo.parms = [0 0];
+    mmo.parms = [0 0.01];
 
 end
 
