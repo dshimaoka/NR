@@ -96,8 +96,8 @@ fixationDeadline = 5000; %[ms] maximum time to initiate a trial
 iti = 1000; %[ms] inter trial interval
 
 %luminance correction
-% redLuminance = 171/255; %Fraser ... Miller 2023
-redLuminance = 0.33; %DS office
+redLuminance = 171/255; %Fraser ... Miller 2023
+%redLuminance = 0.33; %DS office
 
 %RDP
 dotSize = 1;%5; %dot size [pix]
