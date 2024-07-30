@@ -227,21 +227,22 @@ elseif strcmp(args.patchType,'grating')
     fm{2}.phase = 0;  
 
 
-    mm = neurostim.stimuli.convPoly(c, 'maskGrating');
-    mm.radius = args.radius;
-    mm.nSides = 20;
-    mm.filled = true;
-    %mm.linewidth = 5;
-    mm.color = [0 0 0 0];
+    % mm = neurostim.stimuli.convPoly(c, 'maskGrating');
+    % mm.radius = args.radius;
+    % mm.nSides = 20;
+    % mm.filled = true;
+    % %mm.linewidth = 5;
+    % mm.color = [0 0 0 0];
 
-    mmo = neurostim.stimuli.convPoly(c, 'maskGrating_outer');
-    mmo.radius = args.radius+5;
-    mmo.nSides = 20;
-    mmo.filled = true;
-    %mm.linewidth = 5;
-    mmo.color = [1 1 1 0];
+    % mmo = neurostim.stimuli.convPoly(c, 'maskGrating_outer');
+    % mmo.radius = args.radius+5;
+    % mmo.nSides = 20;
+    % mmo.filled = true;
+    % %mm.linewidth = 5;
+    % mmo.color = [1 1 1 0];
 
-  
+    mmo = neurostim.stimuli.noiseradialgrid(c, 'maskGrating_outer');
+
 
 end
 
