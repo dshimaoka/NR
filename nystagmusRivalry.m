@@ -71,17 +71,17 @@ p.addParameter('debug',false,@(x) validateattributes(x,{'logical'},{'scalar','no
 p.addParameter('tDur',4000,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % trial duration from onset of first patch (ms)
 p.addParameter('nRepPerCond',10,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % number of repeats of each condition
 p.addParameter('rewardVol',0.035,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
-p.addParameter('conditionSwitch', [0 1 2]);
+p.addParameter('conditionSwitch', [0 1 2], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'}));
 %conditionSwitch = 0: binocular flash suppression
 %conditionSwitch = 1: physical alteration
 %conditionSwitch = 2: congruent direction between two patches
 
 %patch stimuli
-p.addParameter('patchType','rdp');
-p.addParameter('dirList_first',[0]); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
-p.addParameter('speed',12); %[(visual angle in deg)/s]
-p.addParameter('radius',5); %aperture size [deg]
-p.addParameter('SOARange', [1000 1001]); %stimulus onset after the end of fixation
+p.addParameter('patchType','rdp',@(x) validateattributes(x,{'char'},{'nonempty'})); %rdp or grating
+p.addParameter('dirList_first',[0], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
+p.addParameter('speed',12, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
+p.addParameter('radius',5, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
+p.addParameter('SOARange', [1000 1001], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %stimulus onset after the end of fixation
 
 p.parse(subject,varargin{:});
 args = p.Results;
