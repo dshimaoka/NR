@@ -96,7 +96,7 @@ redLuminance = 171/255; %Fraser ... Miller 2023
 
 %RDP
 dotSize = 5; %dot size [pix]
-nrDots = 30; %number of dots
+nrDots = 200; %number of dots
 
 %grating
 frequency = 0.5; %spatial frequency in cycles per visual angle in degree (not pixel) 
