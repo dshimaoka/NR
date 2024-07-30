@@ -6,15 +6,13 @@ function nystagmusRivalry(subject,varargin)
 % it stays at the same position until further clicking
 %
 %
-%
-%
 % After paradigm starts:
 % - Press Enter to see your eye - adjust focus of camera
 % - Press 'a' for automatic luminance adjustment, then `c` to calibrate.
 % - Press 'space' when you first fixate and 'Enter' when
 %   you've finished looking at the 9 spots.
 % - Press Esc (possibly twice) when you're ready to start protocol.
-% - Press 'a' or 'z' to start a new trial
+% - Press 'a' to report a perceptual switch
 %   *********** Press "Esc" twice to exit a running experiment ************
 %
 %
@@ -23,6 +21,12 @@ function nystagmusRivalry(subject,varargin)
 % - presentation of a first patch, followed by a second patch after SOA
 % - maitaining fixation within radius gets rewarded
 %
+% 
+% Requirements for this code:
+% 1: change GLSLshaders/gabor.frag as: factor =  1.0 * ev +contrast * ev * sv * tev; (l.124) 
+% this will make the background of gratings black
+% 2: change blending in cic as: Screen(c.mainWindow,'BlendFunction',GL_ONE, GL_ONE);  (l.2092)
+% this will enable overlapping two patches without changing luminance of each
 
 %% below from pursuit.m
 % Implementation
@@ -224,27 +228,6 @@ elseif strcmp(args.patchType,'grating')
     %fm{2}.phase = '@patch1.spatialPhase'; %NG0,1,2
     fm{1}.phase = '@mod(-patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 - 270 - 90*patch2.physicalAlteration, 360)';%works in condSwitch=0(&2) not 1
     fm{2}.phase = 0;  
-
-    %% annulus mask ... under development
-    % mm = neurostim.stimuli.convPoly(c, 'maskGrating');
-    % mm.radius = args.radius;
-    % mm.nSides = 20;
-    % mm.filled = true;
-    % %mm.linewidth = 5;
-    % mm.color = [0 0 0 0];
-
-    % mmo = neurostim.stimuli.convPoly(c, 'maskGrating_outer');
-    % mmo.radius = args.radius+5;
-    % mmo.nSides = 20;
-    % mmo.filled = true;
-    % %mm.linewidth = 5;
-    % mmo.color = [1 1 1 0];
-
-    % mmo = neurostim.stimuli.noiseradialgrid(c, 'maskGrating_outer');
-    % mmo.nRadii = 2;
-    % mmo.nWedges = 2;
-    % mmo.parms = [.99 1];
-
 end
 
 %% ========== Add required behaviours =========
@@ -308,7 +291,7 @@ for a = 1:length(facInList)
     myDesign.(sprintf('fac%d',a)).patch1.(facOutList{a}) = args.(facInList{a});
 end
 
-myDesign.fac2.patch1.redFirst = 1;%[0 1]; %whether to start with red or blue
+myDesign.fac2.patch1.redFirst = [0 1]; %whether to start with red or blue
 myDesign.fac3.patch1.conditionSwitch = args.conditionSwitch;
 
 myDesign.retry = 'RANDOM'; %'IMMEDIATE' or 'IGNORE';
