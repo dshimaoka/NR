@@ -91,6 +91,9 @@ fixDuration = 300; % [ms] minimum duration of fixation to initiate patch stimuli
 fixationDeadline = 5000; %[ms] maximum time to initiate a trial 
 iti = 1000; %[ms] inter trial interval
 
+%luminance correction
+redLuminance = 171/255; %Fraser ... Miller 2023
+
 %RDP
 dotSize = 5; %dot size [pix]
 nrDots = 30; %number of dots
@@ -116,6 +119,7 @@ c.addProperty('jitteredSOA',[]);
 c.jitteredSOA = plugins.jitter(c,{args.SOARange(1), args.SOARange(2)}); 
 c.addProperty('tDur',args.tDur);
 c.screen.color.background = [0 0 0];
+c.addProperty('redLuminance', redLuminance);
 
 if ~args.debug % log git hash
     hash = marmolab.getGitHash(fileparts(mfilename('fullpath')));
@@ -197,7 +201,7 @@ fm{1}.addProperty('conditionSwitch', 1);
 
 fm{1}.addProperty('redFirst',0);
 %fm{1}.redFirst = plugins.jitter(c,{0, 1},'distribution','1ofN'); %NG always return 1
-fm{1}.color = '@[patch1.redFirst 0.0 1-patch1.redFirst 0.5]'; 
+fm{1}.color = '@[cic.redLuminance*patch1.redFirst 0.0 1-patch1.redFirst 0.5]'; 
 fm{2}.color = '@[1-patch1.redFirst 0.0 patch1.redFirst 0.5]'; 
 fm{1}.on = '@fixstim.off'; %first stimulus
 fm{2}.on = '@patch1.on + cic.jitteredSOA'; %2nd stimulus
@@ -221,8 +225,6 @@ elseif strcmp(args.patchType,'grating')
     fm{1}.phase = '@mod(-patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 - 270 - 90*patch2.physicalAlteration, 360)';%works in condSwitch=0(&2) not 1
     fm{2}.phase = 0;  
 end
-
-%360*args.tf1List / c.screen.frameRate; % (deg/frame) TF = cycles/s, so spd = 360*TF / frameRate = (deg/s) / (fr/s)
 
 %% ========== Add required behaviours =========
 %Subject's 2AFC response to control inter-trial interval ... not necessary?
