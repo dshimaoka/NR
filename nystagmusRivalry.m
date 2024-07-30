@@ -226,7 +226,7 @@ elseif strcmp(args.patchType,'grating')
     fm{1}.phase = '@mod(-patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 - 270 - 90*patch2.physicalAlteration, 360)';%works in condSwitch=0(&2) not 1
     fm{2}.phase = 0;  
 
-
+    %% annulus mask ... under development
     % mm = neurostim.stimuli.convPoly(c, 'maskGrating');
     % mm.radius = args.radius;
     % mm.nSides = 20;
@@ -241,20 +241,20 @@ elseif strcmp(args.patchType,'grating')
     % %mm.linewidth = 5;
     % mmo.color = [1 1 1 0];
 
-    mmo = neurostim.stimuli.noiseradialgrid(c, 'maskGrating_outer');
-    mmo.nRadii = 2;
-    mmo.nWedges = 2;
-    mmo.parms = [.99 1];
+    % mmo = neurostim.stimuli.noiseradialgrid(c, 'maskGrating_outer');
+    % mmo.nRadii = 2;
+    % mmo.nWedges = 2;
+    % mmo.parms = [.99 1];
 
 end
 
 %% ========== Add required behaviours =========
 %Subject's 2AFC response to control inter-trial interval ... not necessary?
-% k = behaviors.keyResponse(c,'choice');
-% k.from = '@patch1.off'; % end of patch
-% k.maximumRT= Inf;                   %Allow inf time for a response
-% k.keys = {'a','z'};
-% k.required = false; %   setting false means that even if this behavior is not successful (i.e. the wrong answer is given), the trial will not be repeated.
+k = behaviors.keyResponse(c,'keypress');
+k.from = '@patch2.off'; % end of patch
+k.maximumRT= Inf;                   %Allow inf time for a response
+k.keys = {'a'};%,'z'};
+k.required = false; %   setting false means that even if this behavior is not successful (i.e. the wrong answer is given), the trial will not be repeated.
 
 %Maintain gaze on the fixation point until the trial end
 g = behaviors.fixate(c,'fixbhv');
