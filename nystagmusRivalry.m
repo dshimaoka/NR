@@ -201,8 +201,8 @@ fm{1}.addProperty('conditionSwitch', 1);
 
 fm{1}.addProperty('redFirst',0);
 %fm{1}.redFirst = plugins.jitter(c,{0, 1},'distribution','1ofN'); %NG always return 1
-fm{1}.color = [171/255 0 0 0.5];%'@[cic.redLuminance*patch1.redFirst 0.0 1-patch1.redFirst 0.5]'; 
-fm{2}.color = [0 0 1 0.5];%'@[1-patch1.redFirst 0.0 patch1.redFirst 0.5]'; 
+fm{1}.color = '@[cic.redLuminance*patch1.redFirst 0.0 1-patch1.redFirst 0.5]'; 
+fm{2}.color = '@[1-patch1.redFirst 0.0 patch1.redFirst 0.5]'; 
 fm{1}.on = '@fixstim.off'; %first stimulus
 fm{2}.on = '@patch1.on + cic.jitteredSOA'; %2nd stimulus
 fm{1}.duration = '@cic.tDur  - patch2.physicalAlteration * (cic.tDur - cic.jitteredSOA)';  %if physicalAlteration=1, terminate after jitteredSOA
@@ -287,7 +287,7 @@ for a = 1:length(facInList)
     myDesign.(sprintf('fac%d',a)).patch1.(facOutList{a}) = args.(facInList{a});
 end
 
-myDesign.fac2.patch1.redFirst = [0 1]; %whether to start with red or blue
+myDesign.fac2.patch1.redFirst = 1;%[0 1]; %whether to start with red or blue
 myDesign.fac3.patch1.conditionSwitch = args.conditionSwitch;
 
 myDesign.retry = 'RANDOM'; %'IMMEDIATE' or 'IGNORE';
