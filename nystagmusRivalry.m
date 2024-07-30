@@ -100,7 +100,7 @@ dotSize = 1;%5; %dot size [pix]
 nrDots = 200; %number of dots
 
 %grating
-frequency = 0.5; %spatial frequency in cycles per visual angle in degree (not pixel) 
+frequency = 0.5; %spatial frequency in cycles per visual angle in degree (not pixel) %Kapoor 2022
 
 import neurostim.*
 commandwindow;
@@ -174,13 +174,12 @@ for ii = 1:nrConds
         fm{ii}.noiseMode = 0; %proportion
         fm{ii}.noiseDist = 1; %uniform
         fm{ii}.direction = 0;
-
     elseif strcmp(args.patchType,'grating')
         fm{ii} = neurostim.stimuli.gabor(c, stimName);
         fm{ii}.width = 2*max(args.radius);
         fm{ii}.height = fm{ii}.width;
         fm{ii}.sigma = args.radius;
-        fm{ii}.mask = 'CIRCLE';
+        fm{ii}.mask = 'GAUSS';%'CIRCLE';
         fm{ii}.frequency = frequency;
         fm{ii}.contrast = 1;
         fm{ii}.flickerMode = 'sinecontrast';%'none'; %none makes the phase difference between patches more apparent
