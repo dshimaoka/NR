@@ -226,7 +226,7 @@ elseif strcmp(args.patchType,'grating')
     fm{1}.phase = '@mod(-patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 - 270 - 90*patch2.physicalAlteration, 360)';%works in condSwitch=0(&2) not 1
     fm{2}.phase = 0;  
 
-    mm = neurostim.stimuli.convPoly(c, maskGrating);
+    mm = neurostim.stimuli.convPoly(c, 'maskGrating');
     mm.radius = args.radius;
     mm.nSides = 10;
     mm.filed = false;
