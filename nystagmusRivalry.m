@@ -228,9 +228,9 @@ elseif strcmp(args.patchType,'grating')
 
     mm = neurostim.stimuli.convPoly(c, 'maskGrating');
     mm.radius = args.radius;
-    mm.nSides = 10;
+    mm.nSides = 20;
     mm.filled = false;
-    mm.color = [0 1 0];
+    mm.color = [0 0 0];
 end
 
 %% ========== Add required behaviours =========
