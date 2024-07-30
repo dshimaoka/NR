@@ -230,7 +230,8 @@ elseif strcmp(args.patchType,'grating')
     mm.radius = args.radius;
     mm.nSides = 20;
     mm.filled = false;
-    mm.color = [0 0 0 0];
+    mm.linewidth = 5;
+    mm.color = [.5 .5 .5 0];
 end
 
 %% ========== Add required behaviours =========
