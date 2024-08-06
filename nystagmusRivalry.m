@@ -248,11 +248,9 @@ g.required = true; % This is a required behavior. Any trial in which fixation is
 g.failEndsTrial = false;
 g.successEndsTrial = false; %cf. false in OcuFol
 
-it = stimuli.fixation(c,'interval');    
-it.shape = 'CIRC';               
-it.size = 0.25; % units?
-it.color = [0 0 0];
-it.on = '@fixbhv.off';                         % What time should the stimulus come on? (all times are in ms)
+it = behaviors.fixate(c,'interval');    
+it.from = '@fixbhv.off';
+it.tolerance = Inf; % What time should the stimulus come on? (all times are in ms)
 it.duration = iti; 
 it.X = 0;
 it.Y = 0;
