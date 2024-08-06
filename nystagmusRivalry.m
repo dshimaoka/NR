@@ -82,7 +82,7 @@ p.addParameter('conditionSwitch', [0 1 2], @(x) validateattributes(x,{'numeric'}
 
 %patch stimuli
 p.addParameter('patchType','rdp',@(x) validateattributes(x,{'char'},{'nonempty'})); %rdp or grating
-p.addParameter('dirList_first',[0], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
+p.addParameter('dir1List',[0], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
 p.addParameter('speed',12, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
 p.addParameter('radius',5, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
 p.addParameter('SOARange', [1000 1001], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %stimulus onset after the end of fixation
@@ -110,7 +110,7 @@ import neurostim.*
 commandwindow;
 
 % total trial number
-% args.nRepPerCond * numel(args.dirList_first) * 2 * 2 % direction x (congruent / incongruent) * (red/blue)
+% args.nRepPerCond * numel(args.dir1List) * 2 * 2 % direction x (congruent / incongruent) * (red/blue)
 
 
 %% ========= Specify rig configuration  =========
@@ -295,7 +295,7 @@ c.iti = 0;%iti;
 % For threshold estimation, we'd just vary speed
 myDesign=design('myFac');                      %Type "help neurostim/design" for more options.
 facOutList = {'direction'}; % frequency = spatial frequency
-facInList = {'dirList_first'};
+facInList = {'dir1List'};
 for a = 1:length(facInList)
     myDesign.(sprintf('fac%d',a)).patch1.(facOutList{a}) = args.(facInList{a});
 end
