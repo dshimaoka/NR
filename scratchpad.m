@@ -84,11 +84,10 @@ end
 
 %% judge if and when the reversal of eye direction occurs
 switchTime = cell(d.numTrials, 1);
+vel_stimDir = cell(d.numTrials, 1);
+t_r = cell(d.numTrials, 1);
 for itr = 1:d.numTrials
-    tidx = find((1e3*d.eye(itr).t>stimOn1(itr)) & (d.eye(itr).t<max(d.eye(itr).t)));
-    [~, stimOn1tidx] = min(abs(1e3*d.eye(itr).t - stimOn1(itr)));
-    [~, stimOn2tidx] = min(abs(1e3*d.eye(itr).t - stimOn2(itr)));
-
+  
     tidx = find((d.eye(itr).t>0) & (d.eye(itr).t<max(d.eye(itr).t)));
 
     t = d.eye(itr).t(tidx); %s
@@ -97,34 +96,53 @@ for itr = 1:d.numTrials
         switch ii
             case 1
                 x = eye_rmSaccades(itr).x(tidx);
+                signal = x;
             case 2
                 y = eye_rmSaccades(itr).y(tidx);
+                signal = y;
+        end
+
+        okIdx = ~isnan(signal);
+        signal = interp1(find(okIdx), signal(okIdx), 1:numel(signal), 'nearest','extrap')'; %extrapolate r to remove NaNs
+
+        order = 3;
+        fs = 1/median(diff(t));
+        cutoffFreq = 1;%Hz
+        Wn = cutoffFreq/(fs/2);
+        [b,a]=butter(order, Wn, 'low');
+
+        signal_c = filtfilt(b,a,cat(1,flipud(signal), ...
+            signal, flipud(signal)));
+        ntotFrames = numel(signal);
+        signal_f = signal_c(ntotFrames+1:2*ntotFrames); %filtered distance from fixation cross
+        
+        fs_r = 100; %resampled frequency [Hz]
+        t_r{itr} = t(1):1/fs_r:t(end);
+        signal_rf = interp1(t, signal_f,t_r{itr})';
+        switch ii
+            case 1
+                x_f = signal_f; %filtered distance from fixation cross
+                x_rf = signal_rf; %resampled
+                vx_rf = gradient(x_rf, 1/fs_r);
+            case 2
+                y_f = signal_f; %filtered distance from fixation cross
+                y_rf = signal_rf; %resampled
+                vy_rf = gradient(y_rf, 1/fs_r);
         end
     end
-    r = sqrt(x.^2+y.^2); %distance from the fixation point
-    rokIdx = ~isnan(r);
-    r = interp1(find(rokIdx), r(rokIdx), find(rokIdx), 'nearest','extrap'); %extrapolate r to remove NaNs
+    theta = atan2(vy_rf, vx_rf);
+    vel_stimDir{itr} = sqrt(vx_rf.^2+vy_rf.^2) .* cos(theta - pi/180*stimDir(itr));
 
-    %% filtering
-    % order = 3;
-    % framelen = 501;%11;
-    % r_f = sgolayfilt(r, order, framelen); %temporal filtering
-
-    order = 3;
-    fs = 1/median(diff(t));
-    cutoffFreq = 1;%Hz
-    Wn = cutoffFreq/(fs/2);
-    [b,a]=butter(order, Wn, 'low');
-    signal_c = filtfilt(b,a,cat(1,flipud(r), ...
-        r, flipud(r)));
-    ntotFrames = numel(r);
-    r_f = signal_c(ntotFrames+1:2*ntotFrames); %filtered distance from fixation cross
-
-    peakIdx = findpeaks(r_f);
-    peakT = 1e3*t(peakIdx.loc);
-    peakT = peakT(peakT>stimOn2(itr)); %omit time before 2nd patch
-    peakT = peakT(peakT<1e3*t(end));
-    switchTime{itr} = peakT;
+[pks, peakTidx_c] =     findpeaks(-abs(vel_stimDir{itr}), 'MinPeakProminence',3);
+peakTidx = [];
+dt_ba = 0.1;%[s] %time points to judge polarity change before and after the peak
+for jj = 1:numel(pks)
+    if pks(jj) < 0.1 && peakTidx_c(jj) > dt_ba*fs_r+1 && peakTidx_c(jj) < numel(t_r{itr})-dt_ba*fs_r && ...
+            vel_stimDir{itr}(peakTidx_c(jj)-dt_ba*fs_r)*vel_stimDir{itr}(peakTidx_c(jj)+dt_ba*fs_r)<0
+        peakTidx = [peakTidx peakTidx_c(jj)];
+    end
+end
+    switchTime{itr} = 1e3*t_r{itr}(peakTidx);
 end
 switched = cellfun(@(x)~isempty(x), switchTime);
 
@@ -182,8 +200,8 @@ for itr = 1:d.numTrials
         end
     end
     r = sqrt(x_rm.^2+y_rm.^2); %distance from the fixation point
-    rokIdx = ~isnan(r);
-    r = interp1(find(rokIdx), r(rokIdx), 1:numel(r), 'nearest','extrap')'; %extrapolate r to remove NaNs
+    okIdx = ~isnan(r);
+    r = interp1(find(okIdx), r(okIdx), 1:numel(r), 'nearest','extrap')'; %extrapolate r to remove NaNs
 
     order = 3;
     fs = 1/median(diff(t));
@@ -221,19 +239,21 @@ for itr = 1:d.numTrials
  if outCome(itr)==0; set(gca,'xcolor','r','ycolor','r');end
 
     subplot(223);
-    plot(1e3*t, r, 'k',1e3*t, r_f, 'g');
+    %plot(1e3*t, r, 'k',1e3*t, r_f, 'g');
+    plot(1e3*t_r{itr}, vel_stimDir{itr});
     vline(stimOn2(itr),gca,'-',thisColor);
     vbox(stimOn1(itr),1e3*t(end),gca,[redFirst(itr) 0.0 1-redFirst(itr) .1])
     vbox(stimOn2(itr),1e3*t(end),gca,[1-redFirst(itr) 0.0 redFirst(itr) .1])
+    hline(0);
     vline(switchTime{itr}, gca, '--','g');
     xlabel('time [ms]');
-    ylabel('distance from fix cross [deg]');
+    ylabel('velocity along 1st stim');
  if outCome(itr)==0; set(gca,'xcolor','r','ycolor','r');end
 
     subplot(224)
     quiver(0,0, winSize*cos(stimDir(itr)*pi/180), winSize*sin(stimDir(itr)*pi/180),'linewidth',1); hold on;
     try
-        plot(x_rm(stimOn1tidx:end) - x_rm(stimOn1tidx), y_rm(stimOn1tidx:end) - y_rm(stimOn1tidx), 'k');
+        scatter(x_rm(stimOn1tidx:end) - x_rm(stimOn1tidx), y_rm(stimOn1tidx:end) - y_rm(stimOn1tidx), 1,t(stimOn1tidx:end));
         plot(x_rm(stimOn2tidx)- x_rm(stimOn1tidx), y_rm(stimOn2tidx)- y_rm(stimOn1tidx), 'o', 'Color',thisColor);
     end
     xlim([-winSize winSize]);  ylim([-winSize winSize]);
