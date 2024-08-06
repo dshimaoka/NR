@@ -72,8 +72,8 @@ p = inputParser();
 p.KeepUnmatched = true;
 p.addRequired('subject',@(x) validateattributes(x,{'char'},{'nonempty'}));
 p.addParameter('debug',false,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
-p.addParameter('tDur',4000,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % trial duration from onset of first patch (ms)
-p.addParameter('nRepPerCond',10,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % number of repeats of each condition
+p.addParameter('tDur',1800,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % trial duration from onset of first patch (ms)
+p.addParameter('nRepPerCond',3,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % number of repeats of each condition
 p.addParameter('rewardVol',0.035,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
 p.addParameter('conditionSwitch', [0 1 2], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'}));
 %conditionSwitch = 0: binocular flash suppression
@@ -82,9 +82,9 @@ p.addParameter('conditionSwitch', [0 1 2], @(x) validateattributes(x,{'numeric'}
 
 %patch stimuli
 p.addParameter('patchType','rdp',@(x) validateattributes(x,{'char'},{'nonempty'})); %rdp or grating
-p.addParameter('dir1List',[0], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
-p.addParameter('speed',12, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
-p.addParameter('radius',5, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
+p.addParameter('dir1List',[0 45 90 135 180 225 270 315], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
+p.addParameter('speed',6, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
+p.addParameter('radius',4, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
 p.addParameter('SOA', 900, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %stimulus onset after the end of fixation
 
 p.parse(subject,varargin{:});
@@ -110,8 +110,10 @@ import neurostim.*
 commandwindow;
 
 % total trial number
-% args.nRepPerCond * numel(args.dir1List) * 2 * 2 % direction x (congruent / incongruent) * (red/blue)
+% nTotTrials = args.nRepPerCond * numel(args.dir1List) * 2 * numel(args.conditionSwitch) % direction x (congruent / incongruent) * (red/blue)
 
+% estimated experiment duration [s]
+% nTotTrials x (args.tDur + ITI + fixDuration) * 1e-3
 
 %% ========= Specify rig configuration  =========
 
