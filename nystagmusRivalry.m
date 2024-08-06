@@ -85,7 +85,7 @@ p.addParameter('patchType','rdp',@(x) validateattributes(x,{'char'},{'nonempty'}
 p.addParameter('dir1List',[0], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
 p.addParameter('speed',12, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
 p.addParameter('radius',5, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
-p.addParameter('SOARange', [1000 1001], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %stimulus onset after the end of fixation
+p.addParameter('SOA', 900, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %stimulus onset after the end of fixation
 
 p.parse(subject,varargin{:});
 args = p.Results;
@@ -121,8 +121,8 @@ c = marmolab.rigcfg('debug',args.debug, p.Unmatched); % set to false to save git
 c.paradigm = 'nystagmusRivalry';
 c.addProperty('fixDuration', fixDuration);
 %c.addProperty('jitteredSOA',[]);
-%c.jitteredSOA = plugins.jitter(c,{args.SOARange(1), args.SOARange(2)}); %MEANINGLESS
-c.addProperty('SOARange',args.SOARange);
+%c.jitteredSOA = plugins.jitter(c,{args.SOA(1), args.SOA(2)}); %MEANINGLESS
+c.addProperty('SOA',args.SOA);
 c.addProperty('tDur',args.tDur);
 c.screen.color.background = [0 0 0];
 c.addProperty('redLuminance', redLuminance);
@@ -213,8 +213,8 @@ fm{1}.addProperty('redFirst',0);
 fm{1}.color = '@0.5*[cic.redLuminance*patch1.redFirst 0.0 1-patch1.redFirst]';  %0.5x is necessary for the hack of blend in cic
 fm{2}.color = '@0.5*[cic.redLuminance*(1-patch1.redFirst) 0.0 patch1.redFirst]';  %0.5x is necessary for the hack of blend in cic 
 fm{1}.on = '@fixstim.off'; %first stimulus
-% fm{2}.on = plugins.jitter(c,{c.SOARange(1), c.SOARange(2)});% + '@patch1.on'; %2nd stimulus
-fm{2}.on = '@patch1.on + 1500*rand(1)'; %2nd stimulus
+%fm{2}.on = plugins.jitter(c,{c.SOA(1), c.SOA(2)});% + '@patch1.on'; %2nd stimulus
+fm{2}.on = '@patch1.on + cic.SOA'; %2nd stimulus
 fm{1}.duration = '@cic.tDur  - patch2.physicalAlteration * (cic.tDur - patch2.on + patch1.on)';  %if physicalAlteration=1, terminate after jitteredSOA
 fm{2}.duration = '@cic.tDur - patch2.on + patch1.on';
 fm{2}.addProperty('congruent', '@fix(patch1.conditionSwitch/2)'); %whether the second patch moves the same direction with the 1st patch
