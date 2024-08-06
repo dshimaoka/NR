@@ -129,6 +129,7 @@ c.addProperty('patchType', args.patchType);
 c.addProperty('rewardVol', args.rewardVol);
 c.addProperty('fixationDeadline',fixationDeadline);
 c.addProperty('conditionSwitch', args.conditionSwitch);
+c.addProperty('interTrialInterval', iti);
 
 if ~args.debug % log git hash
     hash = marmolab.getGitHash(fileparts(mfilename('fullpath')));
@@ -251,9 +252,10 @@ g.successEndsTrial = false; %cf. false in OcuFol
 it = behaviors.fixate(c,'interval');    
 it.from = '@fixbhv.off';
 it.tolerance = Inf; % What time should the stimulus come on? (all times are in ms)
-it.duration = iti; 
+it.to = '@patch2.off + cic.interTrialInterval'; 
 it.X = 0;
 it.Y = 0;
+it.required = true; 
 it.failEndsTrial = true;
 it.successEndsTrial = true; %cf. false in OcuFol
 
