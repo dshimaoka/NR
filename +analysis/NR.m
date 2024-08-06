@@ -156,8 +156,10 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
         end
 
         function keyPressTime = getKeyPressTime(d)
-            %get time of key press(es)
-            % TOBE CONFIRMED
+            %get time of key press from the onset of each trial [ms]
+
+            t0 =  d.meta.cic.firstFrame('time',Inf);
+
             [time,trial,frame,keyTmp] = d.meta.keypress.keyIx('time',Inf);
             key = cell2mat(keyTmp);
             ignoreTrial = isnan(key);
@@ -169,7 +171,7 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
 
             keyPressTime = cell(d.numTrials, 1);
             for itr = 1:d.numTrials
-                keyPressTime{itr} = time(trial == itr);
+                keyPressTime{itr} = 1e3*(time(trial == itr) - t0(itr));
             end
         end
 

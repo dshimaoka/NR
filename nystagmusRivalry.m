@@ -212,7 +212,7 @@ fm{1}.addProperty('redFirst',0);
 fm{1}.color = '@0.5*[cic.redLuminance*patch1.redFirst 0.0 1-patch1.redFirst]';  %0.5x is necessary for the hack of blend in cic
 fm{2}.color = '@0.5*[cic.redLuminance*(1-patch1.redFirst) 0.0 patch1.redFirst]';  %0.5x is necessary for the hack of blend in cic 
 fm{1}.on = '@fixstim.off'; %first stimulus
-fm{2}.on = '@patch1.on + cic.jitteredSOA'; %2nd stimulus
+fm{2}.on = plugins.jitter(c,{args.SOARange(1), args.SOARange(2)}); %'@patch1.on + cic.jitteredSOA'; %2nd stimulus
 fm{1}.duration = '@cic.tDur  - patch2.physicalAlteration * (cic.tDur - cic.jitteredSOA)';  %if physicalAlteration=1, terminate after jitteredSOA
 fm{2}.duration = '@cic.tDur - cic.jitteredSOA';
 fm{2}.addProperty('congruent', '@fix(patch1.conditionSwitch/2)'); %whether the second patch moves the same direction with the 1st patch
@@ -232,7 +232,7 @@ end
 
 %% ========== Add required behaviours =========
 %Subject's 2AFC response to control inter-trial interval ... not necessary?
-k = behaviors.keyResponse(c,'keypress');
+k = behaviors.keyResponse(c,'keypress'); %registered upto once per trial
 k.from = '@patch1.on'; % end of patch
 k.maximumRT= Inf;                   %Allow inf time for a response
 k.keys = {'a'};%,'z'};
