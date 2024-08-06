@@ -63,8 +63,10 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             d.patch1Stop = getPatch1Stop(d);
             d.patch2Stop = getPatch2Stop(d);
             d.patchSpeed = getPatchSpeed(d);
-            d.eye_rm = rmBlinkSaccade(d);
-            d.switchTime = getSwitchTime(d);
+            if ~isempty(d.eye)
+                d.eye_rm = rmBlinkSaccade(d);
+                d.switchTime = getSwitchTime(d);
+            end
         end
 
         % function tDur = getTDur(d)
@@ -159,6 +161,11 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             [time,trial,frame,keyTmp] = d.meta.keypress.keyIx('time',Inf);
             key = cell2mat(keyTmp);
             ignoreTrial = isnan(key);
+            keepInd = find(~ignoreTrial);
+            time = time(~ignoreTrial);
+            trial = trial(~ignoreTrial);
+            frame = frame(~ignoreTrial);
+            key = key(~ignoreTrial);
 
             keyPressTime = cell(d.numTrials, 1);
             for itr = 1:d.numTrials
