@@ -10,6 +10,12 @@ function summary(file)
 d = analysis.NR('file',file,'loadArgs',{'loadEye',true}); %loads eye data into 'd' 
 disp('data loaded!') 
 
+%% aborted trials
+d.getNumAbort;
+
+%% complete but invalid due to eye movements
+d.getInvalidBhvTrials;
+
 %% eye trace per trial
 for itr = 1:d.numTrials
     d.plotSingleTrialEye(itr);
@@ -18,6 +24,6 @@ for itr = 1:d.numTrials
 end
 
 %% eye switch by stimulus direction
-d.plotSwitchByStimDir;
+d.plotSwitchByPatchDir;
 screen2png(fullfile(saveDir,['nSwitchedTrials_' thisFile '.png']));
 close
