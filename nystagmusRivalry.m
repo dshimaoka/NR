@@ -100,11 +100,11 @@ redLuminance = 171/255; %Fraser ... Miller 2023
 %redLuminance = 0.33; %DS office
 
 %RDP
-dotSize = 1;%5; %dot size [pix]
+dotSize = 2;%5; %dot size [pix]
 nrDots = 200; %number of dots
 
 %grating
-frequency = 0.5; %spatial frequency in cycles per visual angle in degree (not pixel) %Kapoor 2022
+frequency = 0.25; %spatial frequency in cycles per visual angle in degree (not pixel) %Kapoor 2022
 
 import neurostim.*
 commandwindow;
@@ -121,10 +121,14 @@ c = marmolab.rigcfg('debug',args.debug, p.Unmatched); % set to false to save git
 c.paradigm = 'nystagmusRivalry';
 c.addProperty('fixDuration', fixDuration);
 c.addProperty('jitteredSOA',[]);
-c.jitteredSOA = plugins.jitter(c,{args.SOARange(1), args.SOARange(2)}); 
+c.jitteredSOA = plugins.jitter(c,{args.SOARange(1), args.SOARange(2)}); %MEANINGLESS
 c.addProperty('tDur',args.tDur);
 c.screen.color.background = [0 0 0];
 c.addProperty('redLuminance', redLuminance);
+c.addProperty('patchType', args.patchType);
+c.addProperty('rewardVol', args.rewardVol);
+c.addProperty('fixationDeadline',fixationDeadline);
+c.addProperty('conditionSwitch', args.conditionSwitch);
 
 if ~args.debug % log git hash
     hash = marmolab.getGitHash(fileparts(mfilename('fullpath')));
@@ -212,19 +216,15 @@ fm{1}.duration = '@cic.tDur  - patch2.physicalAlteration * (cic.tDur - cic.jitte
 fm{2}.duration = '@cic.tDur - cic.jitteredSOA';
 fm{2}.addProperty('congruent', '@fix(patch1.conditionSwitch/2)'); %whether the second patch moves the same direction with the 1st patch
 fm{2}.addProperty('physicalAlteration','@rem(patch1.conditionSwitch, 2)')
+fm{2}.direction = '@patch1.direction+180*(1-patch2.congruent)';
 
-if strcmp(args.patchType, 'rdp')
-    fm{2}.direction = '@patch1.direction+180*(1-patch2.congruent)';
-elseif strcmp(args.patchType,'grating')
+if strcmp(args.patchType,'grating')
     fm{1}.orientation = '@mod(patch1.direction, 180) - 90';
     fm{2}.orientation = '@patch1.orientation';
     fm{1}.directionPolarity = '@-2*fix(patch1.direction/180) + 1';
     fm{2}.directionPolarity = '@(2*patch2.congruent-1) * patch1.directionPolarity';
     fm{1}.phaseSpeed = '@360*patch1.directionPolarity * patch1.speed * patch1.frequency /patch1.frameRate'; %[deg/frame]
     fm{2}.phaseSpeed = '@360*patch2.directionPolarity * patch2.speed * patch2.frequency /patch2.frameRate'; %[deg/frame] 
-    %fm{2}.phase = '@patch1.phase + patch1.phaseSpeed*(patch1.frameRate+10*(1-patch2.physicalAlteration-patch2.congruent))*patch1.duration/1000 + 270*patch2.congruent'; %[deg] %works 1&2 not 0
-    %fm{2}.phase = '@patch1.phase + patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 + 270'; %works in condSwitch=0(&2) not 1
-    %fm{2}.phase = '@patch1.spatialPhase'; %NG0,1,2
     fm{1}.phase = '@mod(-patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 - 270 - 90*patch2.physicalAlteration, 360)';%works in condSwitch=0(&2) not 1
     fm{2}.phase = 0;  
 end
@@ -232,7 +232,7 @@ end
 %% ========== Add required behaviours =========
 %Subject's 2AFC response to control inter-trial interval ... not necessary?
 k = behaviors.keyResponse(c,'keypress');
-k.from = '@patch2.off'; % end of patch
+k.from = '@patch1.on'; % end of patch
 k.maximumRT= Inf;                   %Allow inf time for a response
 k.keys = {'a'};%,'z'};
 k.required = false; %   setting false means that even if this behavior is not successful (i.e. the wrong answer is given), the trial will not be repeated.
@@ -245,9 +245,19 @@ g.X = '@patch1.X'; %'@traj.X';
 g.Y = '@patch1.Y'; %'@traj.Y';
 g.tolerance = args.radius; % (deg) allowed eye position error - should be aiming to get this as small as possible
 g.required = true; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
-g.failEndsTrial = true;
-g.successEndsTrial = true; %cf. false in OcuFol
+g.failEndsTrial = false;
+g.successEndsTrial = false; %cf. false in OcuFol
 
+it = stimuli.fixation(c,'interval');    
+it.shape = 'CIRC';               
+it.size = 0.25; % units?
+it.color = [0 0 0];
+it.on = '@fixbhv.off';                         % What time should the stimulus come on? (all times are in ms)
+it.duration = iti; 
+it.X = 0;
+it.Y = 0;
+it.failEndsTrial = true;
+it.successEndsTrial = true; %cf. false in OcuFol
 
 %% Turn off logging
 stopLog(c.fixstim.prms.X);
@@ -279,7 +289,7 @@ end
 c.trialDuration = Inf; %'@choice.stopTime';       %End the trial as soon as the 2AFC response is made.
 % c.trialDuration = '@choice.stopTime + faces.duration'; %cuesaccde
 % c.trialDuration = '@tarBr.startTime.fixating + tarBr.ps + 300'; %OcuFol
-c.iti = iti;
+c.iti = 0;%iti;
 
 %  Specify experimental conditions
 % For threshold estimation, we'd just vary speed
