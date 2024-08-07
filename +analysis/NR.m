@@ -189,7 +189,7 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             numAbort(1) = sum((1e3*trialEndTime <= patch1On) .* (d.complete == false)); %before 1st patch
             numAbort(2) = sum((1e3*trialEndTime > patch1On) .* (1e3*trialEndTime <= patch2On) .* (d.complete == false)); %between 1st and 2nd patches
             numAbort(3) = sum((1e3*trialEndTime > patch2On) .* (d.complete == false)); %after 2nd patch
-            sprintf('# aborted trials before 1st patch: %d, between patches: %d, after 2nd patch: %d', numAbort(1), numAbort(2), numAbort(3))
+            fprintf('# aborted trials before 1st patch: %d, between patches: %d, after 2nd patch: %d\n', numAbort(1), numAbort(2), numAbort(3));
         end
 
         function eye_rm = rmBlinkSaccade(d)
@@ -310,7 +310,8 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
         %% functions for visualization
         function fig = plotSwitchByPatchDir(d)
             [~, switchTime1st] = d.getSwitchTime;
-            switched = cellfun(@(x)~isnan(x), switchTime1st); %switchTimes
+            % switched = cellfun(@(x)~isnan(x), switchTimes);
+            switched = ~isnan(switchTime1st);
 
             nCompleteTrials = zeros(numel(d.patchDirList), 2, 2);
             nSwitchedTrials = zeros(numel(d.patchDirList), 2, 2);
@@ -326,12 +327,20 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
                 end
             end
             fig = figure;
-            plot(d.patchDirList, nSwitchedTrials(:,1,1)./nCompleteTrials(:,1,1), '-s','Color','b','MarkerFaceColor','b'); hold on
-            plot(d.patchDirList, nSwitchedTrials(:,1,2)./nCompleteTrials(:,1,2), '-o','Color','b');
-            plot(d.patchDirList, nSwitchedTrials(:,2,1)./nCompleteTrials(:,2,1), '-s','Color','r','MarkerFaceColor','r');
+            ax(1)=subplot(211);
+            plot(d.patchDirList, nSwitchedTrials(:,1,1)./nCompleteTrials(:,1,1), '-*','Color','b'); hold on
+            plot(d.patchDirList, nSwitchedTrials(:,2,1)./nCompleteTrials(:,2,1), '-o','Color','r');
+            title('incongruent');
+            axis padded;
+
+            ax(2)=subplot(212);
+            plot(d.patchDirList, nSwitchedTrials(:,1,2)./nCompleteTrials(:,1,2), '-*','Color','b'); hold on
             plot(d.patchDirList, nSwitchedTrials(:,2,2)./nCompleteTrials(:,2,2), '-o','Color','r');
-            axis padded
-            legend('blueFirst incongruent', 'blueFirst congruent','redFirst incongruent', 'redFirst congruent','Location','eastoutside');
+            title('congruent');
+          
+            axis padded;
+            linkaxes(ax(:));
+            legend('blueFirst','redFirst');
             xlabel('stimulus direction [deg]'); ylabel('eye switch rate');
         end
 

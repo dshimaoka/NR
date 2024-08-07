@@ -1,5 +1,6 @@
 function summary(file)
 
+ set(0,'DefaultFigureVisible','off');
 % if nargin < 2
 %     saveServer = '/mnt/dshi0006_market/MarmosetAnalysis';
 % end
@@ -17,13 +18,17 @@ d.getNumAbort;
 d.getInvalidBhvTrials;
 
 %% eye trace per trial
+disp('Plotting single trial eye traces');
 for itr = 1:d.numTrials
     d.plotSingleTrialEye(itr);
     screen2png(fullfile(saveDir, ['eyeSummary_' thisFile '_tr' num2str(itr) '.png']));
     close;
 end
+disp('done');
 
 %% eye switch by stimulus direction
 d.plotSwitchByPatchDir;
 screen2png(fullfile(saveDir,['nSwitchedTrials_' thisFile '.png']));
 close
+
+ set(0,'DefaultFigureVisible','on');
