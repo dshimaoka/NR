@@ -84,7 +84,7 @@ p.addParameter('conditionSwitch', [0 1 2], @(x) validateattributes(x,{'numeric'}
 p.addParameter('patchType','rdp',@(x) validateattributes(x,{'char'},{'nonempty'})); %rdp or grating
 p.addParameter('dir1List',[0 45 90 135 180 225 270 315], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
 p.addParameter('speed',6, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
-p.addParameter('radius',4, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
+p.addParameter('radius',3, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
 p.addParameter('SOA', 900, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %stimulus onset after the end of fixation
 
 p.parse(subject,varargin{:});
@@ -100,11 +100,11 @@ redLuminance = 171/255; %Fraser ... Miller 2023
 %redLuminance = 0.33; %DS office
 
 %RDP
-dotSize = 2;%5; %dot size [pix]
+dotSize = 4;%5; %dot size [pix]
 nrDots = 200; %number of dots
 
 %grating
-frequency = 0.25; %spatial frequency in cycles per visual angle in degree (not pixel) %Kapoor 2022
+frequency = 0.5; %spatial frequency in cycles per visual angle in degree (not pixel) %Kapoor 2022
 
 import neurostim.*
 commandwindow;
@@ -217,8 +217,8 @@ fm{2}.color = '@0.5*[cic.redLuminance*(1-patch1.redFirst) 0.0 patch1.redFirst]';
 fm{1}.on = '@fixstim.off'; %first stimulus
 %fm{2}.on = plugins.jitter(c,{c.SOA(1), c.SOA(2)});% + '@patch1.on'; %2nd stimulus
 fm{2}.on = '@patch1.on + cic.SOA'; %2nd stimulus
-fm{1}.duration = '@cic.tDur  - patch2.physicalAlteration * (cic.tDur - patch2.on + patch1.on)';  %if physicalAlteration=1, terminate after jitteredSOA
-fm{2}.duration = '@cic.tDur - patch2.on + patch1.on';
+fm{1}.duration = '@cic.tDur  - patch2.physicalAlteration * (cic.tDur - cic.SOA)';  %if physicalAlteration=1, terminate after jitteredSOA
+fm{2}.duration = c.tDur - c.SOA;
 fm{2}.addProperty('congruent', '@fix(patch1.conditionSwitch/2)'); %whether the second patch moves the same direction with the 1st patch
 fm{2}.addProperty('physicalAlteration','@rem(patch1.conditionSwitch, 2)')
 fm{2}.direction = '@patch1.direction+180*(1-patch2.congruent)';
@@ -250,11 +250,11 @@ g.X = '@patch1.X'; %'@traj.X';
 g.Y = '@patch1.Y'; %'@traj.Y';
 g.tolerance = args.radius; % (deg) allowed eye position error - should be aiming to get this as small as possible
 g.required = true; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
-g.failEndsTrial = false;
+g.failEndsTrial = true;
 g.successEndsTrial = false; %cf. false in OcuFol
 
 it = behaviors.fixate(c,'interval');    
-it.from = '@fixbhv.off';
+it.from = '@patch2.off';
 it.tolerance = Inf; % What time should the stimulus come on? (all times are in ms)
 it.to = '@patch2.off + cic.interTrialInterval'; 
 it.X = 0;

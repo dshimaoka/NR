@@ -27,8 +27,14 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
         radius; %radius of patches in [deg]
         patchDirList; %list of stimulus directions
         patchSpeed; %stimulus speed [deg/s]
+        tDur; %duration of patch1+patch2 [ms]
+        conditionSwitchList; %list of stimulus conditions 0: FS, 1: PA, 2: congruent
+        conditionSwitch; %condition swith of each trial
+       SOA; %time difference between patches 1 and 2 [ms]
 
-        % stimulus timing
+        rewardVol;
+
+        % stimulus timing of each trial
         patch1Start; %onset time of 1st patch startTime [ms]
         patch2Start; %onset time of 2nd patch startTime [ms]
         patch1Stop; %onset time of 1st patch stopTime [ms]
@@ -63,22 +69,41 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             d.patch1Stop = getPatch1Stop(d);
             d.patch2Stop = getPatch2Stop(d);
             d.patchSpeed = getPatchSpeed(d);
+            d.tDur = getTDur(d);
+            d.rewardVol = getRewardVol(d);
+            d.conditionSwitch = getConditionSwitch(d);
+            d.conditionSwitchList = getConditionSwitchList(d);
+            d.SOA = getSOA(d);
+
             if ~isempty(d.eye)
                 d.eye_rm = rmBlinkSaccade(d);
                 d.switchTime = getSwitchTime(d);
             end
         end
 
-        % function tDur = getTDur(d)
-        % end
+        function tDur = getTDur(d)
+            tDur = d.meta.cic.tDur('time',Inf,'trial',1).data;
+        end
+        
         % function nRepPerCond = getNRepPerCond(d)
+        %     nRepPerCond = d.meta.cic.nRepPerCond('time',Inf,'trial',1).data;
         % end
-        % function rewardVol = getRewardVol(d)
-        % end
-        % function conditionSwitch = getConditionSwitch(d)
-        % end
-        % function SOARange = getSOARange(d)
-        % end
+        
+        function rewardVol = getRewardVol(d)
+            rewardVol = d.meta.cic.rewardVol('time',Inf,'trial',1).data;
+        end
+
+        function conditionSwitchList = getConditionSwitchList(d)
+            conditionSwitchList = d.meta.cic.conditionSwitch('time',Inf,'trial',1).data;
+        end
+        
+        function conditionSwitch = getConditionSwitch(d)
+            conditionSwitch = d.meta.patch1.conditionSwitch('time',Inf).data;
+        end
+        
+        function SOA = getSOA(d)
+            SOA = d.meta.cic.SOA('time',Inf,'trial',1).data;
+        end
 
         function speed = getPatchSpeed(d)
             speed = unique(d.meta.patch1.speed('time',Inf).data);
@@ -256,8 +281,11 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
                             signal = y;
                     end
 
-                    okIdx = ~isnan(signal);
-                    signal = interp1(find(okIdx), signal(okIdx), 1:numel(signal), 'nearest','extrap')'; %extrapolate r to remove NaNs
+                    okIdx = find(~isnan(signal));
+                    if isempty(okIdx)
+                        continue;
+                    end
+                    signal = interp1(okIdx, okIdx, 1:numel(signal), 'nearest','extrap')'; %extrapolate r to remove NaNs
 
                     signal_f = analysis.src.lowpassFilter(signal, 1e-3*t, d.cutoffFreq);
 

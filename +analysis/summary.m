@@ -19,7 +19,7 @@ d.getInvalidBhvTrials;
 
 %% eye trace per trial
 disp('Plotting single trial eye traces');
-for itr = 1:d.numTrials
+for itr = 5%1:d.numTrials
     d.plotSingleTrialEye(itr);
     screen2png(fullfile(saveDir, ['eyeSummary_' thisFile '_tr' num2str(itr) '.png']));
     close;
