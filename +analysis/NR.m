@@ -506,6 +506,32 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             if d.complete(itr)==0; set(gca,'xcolor','r','ycolor','r');end
         end
 
+        function checkDroppedFrames(d)
+            % under construction
+
+            fd_trial=d.meta.cic.frameDrop.trial';
+            fd_time=d.meta.cic.frameDrop.time';
+            startTime = d.meta.cic.firstFrame('time',inf).time;
+
+            dt = [];
+            tr = unique(fd_trial);
+            figure('Name','Dropped frames')
+            subplot(3,1,1:2)
+            for a = tr'
+                x = fd_time(fd_trial==a) - startTime(a); % times for this trial
+                dt = [dt; diff(x)];
+                plot(x,a*ones(size(x)),'ko')
+                hold on
+            end
+            %xlim([0 max(fd.trialTime)])
+            ylabel('Trial')
+            xlabel('trialTime (ms)')
+
+            subplot(3,1,3)
+            histogram(dt,0:10:2000)
+            xlabel('delta (ms)')
+            ylabel('count')
+
 
     end
 end
