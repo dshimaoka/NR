@@ -1,4 +1,4 @@
-function summary(file)
+function d = summary(file)
 
  set(0,'DefaultFigureVisible','off');
 % if nargin < 2
@@ -11,15 +11,24 @@ function summary(file)
 d = analysis.NR('file',file,'loadArgs',{'loadEye',true}); %loads eye data into 'd' 
 disp('data loaded!') 
 
+disp(d.file);
+disp(d.patchType);
+
 %% aborted trials
 d.getNumAbort;
 
 %% complete but invalid due to eye movements
 d.getInvalidBhvTrials;
 
+%% eye switch latency FS v PA
+d.eyeSwitchLatencyStats;
+
+%% eye - key response consistency
+d.eyeKeyConsistency;
+
 %% eye trace per trial
 disp('Plotting single trial eye traces');
-for itr = 5%1:d.numTrials
+for itr = 1:d.numTrials
     d.plotSingleTrialEye(itr);
     screen2png(fullfile(saveDir, ['eyeSummary_' thisFile '_tr' num2str(itr) '.png']));
     close;

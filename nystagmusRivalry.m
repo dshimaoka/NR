@@ -249,6 +249,8 @@ g.to = '@patch2.off'; %'@traj.off'; % stop tracking when trajectory ends
 g.X = '@patch1.X'; %'@traj.X';
 g.Y = '@patch1.Y'; %'@traj.Y';
 g.tolerance = args.radius; % (deg) allowed eye position error - should be aiming to get this as small as possible
+%FIXME
+
 g.required = true; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
 g.failEndsTrial = true;
 g.successEndsTrial = false; %cf. false in OcuFol

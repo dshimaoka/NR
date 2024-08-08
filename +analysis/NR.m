@@ -7,7 +7,7 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
         accThresh = 2500; %5000; %threshold for saccade detection in findSaccades
 
         % parameters for eye movement switch
-        cutoffFreq = 1;%low pass filtering freq for detection of eye movement switch [Hz]
+        cutoffFreq = 2;%1;%low pass filtering freq for detection of eye movement switch [Hz]
         dt_ba = 0.1;%[s] %time points to judge polarity change before and after the peak
         fs_r = 100; %resampled frequency [Hz]
         %prominenceThresh = 2; %threshold for velocity in detecting eye movement switch[deg/s]
@@ -18,6 +18,9 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
     end
 
     properties
+
+        fixDuration; %duration of initial fixation [ms]
+
         % stimulus property
         redFirst; %whether the red patch is presented first (1) or second (0)
         patch1Dir; %direction of first patch [deg]
@@ -45,7 +48,7 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
 
         % behavioural timing
         switchTime; %time when eye movement switches [ms]
-
+        keyPressTime; %time when a key is perssed first time in a trial [ms]
         % screening trials
         complete; %whether a subject continued fixation till the end of a trial
 
@@ -74,17 +77,24 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             d.conditionSwitch = getConditionSwitch(d);
             d.conditionSwitchList = getConditionSwitchList(d);
             d.SOA = getSOA(d);
+            d.fixDuration = getFixDuration(d);
 
             if ~isempty(d.eye)
                 d.eye_rm = rmBlinkSaccade(d);
                 d.switchTime = getSwitchTime(d);
             end
+
+            d.keyPressTime = getKeyPressTime(d);
+
         end
 
         function tDur = getTDur(d)
             tDur = d.meta.cic.tDur('time',Inf,'trial',1).data;
         end
         
+        function fixDuration = getFixDuration(d)
+            fixDuration = d.meta.cic.fixDuration('time',Inf,'trial',1).data;
+        end
         % function nRepPerCond = getNRepPerCond(d)
         %     nRepPerCond = d.meta.cic.nRepPerCond('time',Inf,'trial',1).data;
         % end
@@ -197,6 +207,9 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             keyPressTime = cell(d.numTrials, 1);
             for itr = 1:d.numTrials
                 keyPressTime{itr} = 1e3*(time(trial == itr) - t0(itr));
+                if isempty( keyPressTime{itr})
+                     keyPressTime{itr} = NaN;
+                end
             end
         end
 
@@ -233,8 +246,12 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
 
             [~,~,vel_patchDir, avgGain_patchDir, avgAngdiff] = d.getSwitchTime;
 
+            tmargin = d.fixDuration;
+
             for itr = 1:d.numTrials
-                tidx = find((d.eye(itr).t>0) & (d.eye(itr).t<max(d.eye(itr).t)));
+                tidx = find((1e3*d.eye(itr).t > d.patch1Start(itr)-tmargin) & (1e3*d.eye(itr).t < d.patch2Stop(itr) + tmargin));%max(d.eye(itr).t)))
+                if isempty(tidx); continue; end;
+
                 t = 1e3*d.eye(itr).t(tidx); %ms
                 t_r = t(1):1e3*1/d.fs_r:t(end);
 
@@ -267,9 +284,11 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             avgAngdiff = nan(d.numTrials, 2); %[deg]
             for itr = 1:d.numTrials
 
-                tidx = find((d.eye(itr).t>0) & (d.eye(itr).t<max(d.eye(itr).t)));
+             tmargin = d.fixDuration;%ms
+              tidx = find((1e3*d.eye(itr).t > d.patch1Start(itr) - tmargin) & (1e3*d.eye(itr).t < d.patch2Stop(itr) + tmargin));%max(d.eye(itr).t)));
+            if isempty(tidx); continue; end;
 
-                t = 1e3*d.eye(itr).t(tidx); %s
+                t = 1e3*d.eye(itr).t(tidx); %ms
 
                 for ii = 1:2
                     switch ii
@@ -285,12 +304,12 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
                     if isempty(okIdx)
                         continue;
                     end
-                    signal = interp1(okIdx, okIdx, 1:numel(signal), 'nearest','extrap')'; %extrapolate r to remove NaNs
+                    signal = interp1(okIdx, signal(okIdx), 1:numel(signal), 'nearest','extrap')'; %extrapolate r to remove NaNs
 
                     signal_f = analysis.src.lowpassFilter(signal, 1e-3*t, d.cutoffFreq);
 
                     t_r = t(1):1e3*1/d.fs_r:t(end);
-                    signal_rf = interp1(t, signal_f,t_r)';
+                    signal_rf = interp1(t, signal_f,t_r)'; %filtered and resampled
                     switch ii
                         case 1
                             x_f = signal_f; %filtered distance from fixation cross
@@ -332,7 +351,31 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
                     end
                 end
             end
+        end
 
+        function eyeKeyConsistency(d)
+            keySwitchTime = d.keyPressTime;
+            [~, switchTime1st] = d.getSwitchTime;
+
+            keySwitched =  cellfun(@(x)~isnan(x), keySwitchTime);
+            eyeSwitched = ~isnan(switchTime1st);
+
+            theseTrials = find(d.complete.*~d.congruent);
+            both = keySwitched(theseTrials) .* eyeSwitched(theseTrials);
+            eyeOnly = (keySwitched(theseTrials)==0) .* (eyeSwitched(theseTrials) == 1);
+            keyOnly = (keySwitched(theseTrials)==1) .* (eyeSwitched(theseTrials) == 0);
+
+            fprintf('eye and key: %d/%d trials (%2.2f%%) \nkey only: %d/%d trials (%2.2f%%) \neye only: %d/%d trials (%2.2f%%) \n', ...
+                sum(both), numel(theseTrials), 100*sum(both)/numel(theseTrials), ...
+                sum(keyOnly), numel(theseTrials), 100*sum(keyOnly)/numel(theseTrials), ...
+                sum(eyeOnly), numel(theseTrials), 100*sum(eyeOnly)/numel(theseTrials));
+        end
+
+        function eyeSwitchLatencyStats(d)
+            [~, switchTime1st] = d.getSwitchTime;
+           latencyFS = switchTime1st(d.conditionSwitch==0.*d.complete) - d.patch2Start(d.conditionSwitch==0.*d.complete);
+           latencyPA = switchTime1st(d.conditionSwitch==1.*d.complete) - d.patch2Start(d.conditionSwitch==1.*d.complete);
+           fprintf('median eye switch latency in FS: %.1f, PA: %.1f [ms]\n', nanmedian(latencyFS), nanmedian(latencyPA));
         end
 
         %% functions for visualization
@@ -364,7 +407,7 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             ax(2)=subplot(212);
             plot(d.patchDirList, nSwitchedTrials(:,1,2)./nCompleteTrials(:,1,2), '-*','Color','b'); hold on
             plot(d.patchDirList, nSwitchedTrials(:,2,2)./nCompleteTrials(:,2,2), '-o','Color','r');
-            title('congruent');
+            title('congruent'); 
           
             axis padded;
             linkaxes(ax(:));
@@ -378,11 +421,14 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             %eye position after removal of blinks and saccades
             % eye velocity along the 1st patch direction
 
-            winSize = 10;
-
+            winSize = 5;
+            
             [switchTimes, switchTime1st, vel_patchDir] = d.getSwitchTime;
+            
+           tmargin = d.fixDuration;%ms
+            tidx = find((1e3*d.eye(itr).t > d.patch1Start(itr)-tmargin) & (1e3*d.eye(itr).t < d.patch2Stop(itr) + tmargin));%max(d.eye(itr).t)));
+            if isempty(tidx); return; end
 
-            tidx = find((d.eye(itr).t>0) & (d.eye(itr).t<max(d.eye(itr).t)));
             t = 1e3*d.eye(itr).t(tidx); %s
             t_r = t(1):1e3/d.fs_r:t(end);
 
@@ -409,9 +455,10 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
                 thisColor = 'r';
             end
             vline(d.patch2Start(itr),gca,'-',thisColor);
-            vbox(d.patch1Start(itr),t(end),gca,[d.redFirst(itr) 0.0 1-d.redFirst(itr) .1])
-            vbox(d.patch2Start(itr),t(end),gca,[1-d.redFirst(itr) 0.0 d.redFirst(itr) .1])
+            vbox(d.patch1Start(itr),d.patch1Stop(itr),gca,[d.redFirst(itr) 0.0 1-d.redFirst(itr) .1])
+            vbox(d.patch2Start(itr),d.patch2Stop(itr),gca,[1-d.redFirst(itr) 0.0 d.redFirst(itr) .1])
             vline(switchTimes{itr}, gca, '--','g'); vline(switchTime1st(itr), gca, '-','g');
+            vline(d.keyPressTime{itr}, gca, '-','y');
             title(sprintf('tr:%d', itr))
             xlabel('time [ms]'); ylabel('raw eye position [deg]')
             if d.complete(itr)==0; set(gca,'xcolor','r','ycolor','r');end
@@ -419,9 +466,10 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             subplot(222);
             plot(t, x_rm, t, y_rm);
             vline(d.patch2Start(itr),gca,'-',thisColor);
-            vbox(d.patch1Start(itr),t(end),gca,[d.redFirst(itr) 0.0 1-d.redFirst(itr) .1])
-            vbox(d.patch2Start(itr),t(end),gca,[1-d.redFirst(itr) 0.0 d.redFirst(itr) .1])
+            vbox(d.patch1Start(itr),d.patch1Stop(itr),gca,[d.redFirst(itr) 0.0 1-d.redFirst(itr) .1])
+            vbox(d.patch2Start(itr),d.patch2Stop(itr),gca,[1-d.redFirst(itr) 0.0 d.redFirst(itr) .1])
             vline(switchTimes{itr}, gca, '--','g'); vline(switchTime1st(itr), gca, '-','g');
+            vline(d.keyPressTime{itr}, gca, '-','y');
             xlabel('time [ms]'); ylabel('after removal of saccade [deg]');
             if d.complete(itr)==0; set(gca,'xcolor','r','ycolor','r');end
 
@@ -429,10 +477,11 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             %plot(1e3*t, r, 'k',1e3*t, r_f, 'g');
             plot(t_r, vel_patchDir{itr});
             vline(d.patch2Start(itr),gca,'-',thisColor);
-            vbox(d.patch1Start(itr),t(end),gca,[d.redFirst(itr) 0.0 1-d.redFirst(itr) .1])
-            vbox(d.patch2Start(itr),t(end),gca,[1-d.redFirst(itr) 0.0 d.redFirst(itr) .1])
+            vbox(d.patch1Start(itr),d.patch1Stop(itr),gca,[d.redFirst(itr) 0.0 1-d.redFirst(itr) .1])
+            vbox(d.patch2Start(itr),d.patch2Stop(itr),gca,[1-d.redFirst(itr) 0.0 d.redFirst(itr) .1])
             hline(0);
             vline(switchTimes{itr}, gca, '--','g'); vline(switchTime1st(itr), gca, '-','g');
+            vline(d.keyPressTime{itr}, gca, '-','y');
             xlabel('time [ms]');
             ylabel('velocity along 1st patch');
             if d.complete(itr)==0; set(gca,'xcolor','r','ycolor','r');end
@@ -456,5 +505,7 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             axis square;
             if d.complete(itr)==0; set(gca,'xcolor','r','ycolor','r');end
         end
+
+
     end
 end
