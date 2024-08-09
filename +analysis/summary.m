@@ -11,8 +11,7 @@ function d = summary(file)
 d = analysis.NR('file',file,'loadArgs',{'loadEye',true}); %loads eye data into 'd' 
 disp('data loaded!') 
 
-disp(d.file);
-disp(d.patchType);
+disp([d.patchType ': ' d.file{:}]);
 
 %% aborted trials
 d.getNumAbort;
@@ -21,7 +20,7 @@ d.getNumAbort;
 d.getInvalidBhvTrials;
 
 %% eye switch latency FS v PA
-d.eyeSwitchLatencyStats;
+d.statEyeSwitch;
 
 %% eye - key response consistency
 d.eyeKeyConsistency;

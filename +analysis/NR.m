@@ -343,11 +343,13 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
                 else
                     switchTimes{itr}= NaN;
                 end
+
+                %1st switch to 2nd patch from positive to negative velocity
                 if ~isempty(peakTidx)
                     thisIdx = find( (vel_patchDir{itr}(peakTidx-d.dt_ba*d.fs_r)'>0) .* (vel_patchDir{itr}(peakTidx+d.dt_ba*d.fs_r)'<0) ...
-                        .* (t_r(peakTidx)>d.patch2Start(itr)));
+                        .* (t_r(peakTidx)>d.patch2Start(itr)) .* (t_r(peakTidx)<d.patch2Stop(itr)));
                     if ~isempty(thisIdx)
-                        switchTime1st(itr) = t_r(min(peakTidx(thisIdx))); %1st switch to 2nd patch from positive to negative velocity
+                        switchTime1st(itr) = t_r(min(peakTidx(thisIdx))); 
                     end
                 end
             end
@@ -371,11 +373,44 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
                 sum(eyeOnly), numel(theseTrials), 100*sum(eyeOnly)/numel(theseTrials));
         end
 
-        function eyeSwitchLatencyStats(d)
+        %% behavioural stats
+        function f = statEyeSwitch(d)
             [~, switchTime1st] = d.getSwitchTime;
+           
+            %switch rate
+            disp('#trials with eye switch after 2nd patch:');
+           for icond = d.conditionSwitchList
+               switch icond
+                   case 0
+                       condName = 'flash suppression';
+                   case 1
+                       condName = 'physical alteration';
+                   case 2
+                       condName = 'congruent';
+               end
+               trials = find(d.conditionSwitch == icond & d.complete);
+               numAllTrials = numel(trials);
+               numEyeSwitchTrials = sum(~isnan(switchTime1st(trials)));
+               fprintf('%s: %d/%d trials (%.2f%%)\n', condName, numEyeSwitchTrials, numAllTrials, 100*numEyeSwitchTrials/numAllTrials);
+           end
+
+
+           %latency
            latencyFS = switchTime1st(d.conditionSwitch==0.*d.complete) - d.patch2Start(d.conditionSwitch==0.*d.complete);
            latencyPA = switchTime1st(d.conditionSwitch==1.*d.complete) - d.patch2Start(d.conditionSwitch==1.*d.complete);
-           fprintf('median eye switch latency in FS: %.1f, PA: %.1f [ms]\n', nanmedian(latencyFS), nanmedian(latencyPA));
+           fprintf('mean eye switch latency across trials in FS: %.1f, PA: %.1f [ms]\n', nanmean(latencyFS), nanmean(latencyPA));
+
+           f=figure;
+           histogram(latencyFS, 20);
+           hold on
+           histogram(latencyPA, 20);
+           grid on
+           vline(nanmean(latencyFS),gca,[],'b')
+           vline(nanmean(latencyPA),gca,[],'r')
+           legend('FS','PA')
+           xlabel('eye switch latency [ms]')
+           ylabel('#trials')
+
         end
 
         %% functions for visualization
@@ -507,7 +542,7 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
         end
 
         function checkDroppedFrames(d)
-            % under construction
+            %% under construction
 
             fd_trial=d.meta.cic.frameDrop.trial';
             fd_time=d.meta.cic.frameDrop.time';
@@ -531,7 +566,7 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             histogram(dt,0:10:2000)
             xlabel('delta (ms)')
             ylabel('count')
-
+        end
 
     end
 end
