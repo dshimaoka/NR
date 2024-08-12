@@ -84,13 +84,14 @@ p.addParameter('conditionSwitch', [0 1 2], @(x) validateattributes(x,{'numeric'}
 p.addParameter('patchType','rdp',@(x) validateattributes(x,{'char'},{'nonempty'})); %rdp or grating
 p.addParameter('dir1List',[0 45 90 135 180 225 270 315], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
 p.addParameter('speed',6, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
-p.addParameter('radius',3, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
+p.addParameter('radius',4, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
 p.addParameter('SOA', 900, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %stimulus onset after the end of fixation
 
 p.parse(subject,varargin{:});
 args = p.Results;
 
 %% fixed parameters
+radius_init = 2;%initial fixation radius[deg] value from OcuFol and cueSaccade
 fixDuration = 300; % [ms] minimum duration of fixation to initiate patch stimuli
 fixationDeadline = 5000; %[ms] maximum time to initiate a trial 
 iti = 1000; %[ms] inter trial interval
@@ -239,16 +240,19 @@ end
 k = behaviors.keyResponse(c,'keypress'); %registered upto once per trial
 k.from = '@patch1.on'; % end of patch
 k.maximumRT= Inf;                   %Allow inf time for a response
-k.keys = {'a'};%,'z'};
+k.keys = {'space'};%,'z'};
 k.required = false; %   setting false means that even if this behavior is not successful (i.e. the wrong answer is given), the trial will not be repeated.
 
-%Maintain gaze on the fixation point until the trial end
+
+%Maintain gaze on the fixation (loose) until the trial end
 g = behaviors.fixate(c,'fixbhv');
+g.addProperty('radius_init',radius_init);
+g.addProperty('radius',args.radius);
 g.from = fixationDeadline; % If fixation has not started at this time, move to the next trial
 g.to = '@patch2.off'; %'@traj.off'; % stop tracking when trajectory ends
-g.X = '@patch1.X'; %'@traj.X';
-g.Y = '@patch1.Y'; %'@traj.Y';
-g.tolerance = args.radius; % (deg) allowed eye position error - should be aiming to get this as small as possible
+g.X = 0; %'@traj.X';
+g.Y = 0; %'@traj.Y';
+g.tolerance = '@iff(fixbhv.isFixating, fixbhv.radius, fixbhv.radius_init)'; % (deg) allowed eye position error - should be aiming to get this as small as possible
 %FIXME
 
 g.required = true; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
@@ -274,6 +278,34 @@ stopLog(c.patch2.prms.X);
 stopLog(c.patch2.prms.Y);
 stopLog(c.fixbhv.prms.X);
 stopLog(c.fixbhv.prms.Y);
+
+if strcmp(args.patchType,'rdp')
+    stopLog(c.patch1.prms.xspeed);
+    stopLog(c.patch1.prms.yspeed);
+    stopLog(c.patch2.prms.xspeed);
+    stopLog(c.patch2.prms.yspeed);
+end
+
+stopLog(c.patch1.prms.rsvpIsi); 
+stopLog(c.patch1.prms.disabled); 
+stopLog(c.patch2.prms.rsvpIsi); 
+stopLog(c.patch2.prms.disabled); 
+
+stopLog(c.keypress.prms.event);
+stopLog(c.keypress.prms.state);
+stopLog(c.keypress.prms.from);
+stopLog(c.fixbhv.prms.event);
+stopLog(c.fixbhv.prms.invert);
+stopLog(c.fixbhv.prms.allowBlinks);
+stopLog(c.interval.prms.event);
+stopLog(c.interval.prms.state);
+stopLog(c.interval.prms.from);
+stopLog(c.interval.prms.allowBlinks);
+stopLog(c.interval.prms.to);
+stopLog(c.fixstim.prms.rsvpIsi);
+stopLog(c.fixstim.prms.disabled);
+stopLog(c.fixstim.prms.duration);
+
 
 
 %% ========== Specify feedback/rewards =========

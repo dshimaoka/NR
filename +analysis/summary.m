@@ -25,6 +25,9 @@ d.statEyeSwitch;
 %% eye - key response consistency
 d.eyeKeyConsistency;
 
+%% missed frames
+d.checkDroppedFrames;
+
 %% eye trace per trial
 disp('Plotting single trial eye traces');
 for itr = 1:d.numTrials
