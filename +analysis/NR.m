@@ -325,8 +325,8 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
                 vel_patchDir{itr} = sqrt(vx_rf.^2+vy_rf.^2) .* cos(theta - pi/180*d.patch1Dir(itr));
                 patch1Tidx = find((t_r>d.patch1Start(itr)) & (t_r<d.patch2Start(itr)));
                 patch2Tidx = find((t_r>d.patch2Start(itr)) & (t_r<d.patch2Stop(itr)));
-                avgAngdiff(itr, 1) = median(180/pi*angdiff(theta(patch1Tidx), repmat(pi/180*d.patch1Dir(itr), [numel(patch1Tidx),1])));
-                avgAngdiff(itr, 2) = median(180/pi*angdiff(theta(patch2Tidx), repmat(pi/180*d.patch2Dir(itr), [numel(patch2Tidx),1])));
+                avgAngdiff(itr, 1) = median(180/pi*analysis.src.angdiff(theta(patch1Tidx), repmat(pi/180*d.patch1Dir(itr), [numel(patch1Tidx),1])));
+                avgAngdiff(itr, 2) = median(180/pi*analysis.src.angdiff(theta(patch2Tidx), repmat(pi/180*d.patch2Dir(itr), [numel(patch2Tidx),1])));
                 avgGain_patchDir(itr) = median(abs(vel_patchDir{itr}(t_r>d.patch1Start(itr))))/d.patchSpeed;
 
                 %% detection of switch in eye movement direction
@@ -366,11 +366,13 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             both = keySwitched(theseTrials) .* eyeSwitched(theseTrials);
             eyeOnly = (keySwitched(theseTrials)==0) .* (eyeSwitched(theseTrials) == 1);
             keyOnly = (keySwitched(theseTrials)==1) .* (eyeSwitched(theseTrials) == 0);
+            consistent =  both + (keySwitched(theseTrials)==0) .* (eyeSwitched(theseTrials) == 0); %Hasse and Tsao 2020 eLife
 
-            fprintf('eye and key: %d/%d trials (%2.2f%%) \nkey only: %d/%d trials (%2.2f%%) \neye only: %d/%d trials (%2.2f%%) \n', ...
+            fprintf('eye and key: %d/%d trials (%2.2f%%) \nkey only: %d/%d trials (%2.2f%%) \neye only: %d/%d trials (%2.2f%%) \nconsistent: %d/%d trials (%2.2f%%) \n', ...
                 sum(both), numel(theseTrials), 100*sum(both)/numel(theseTrials), ...
                 sum(keyOnly), numel(theseTrials), 100*sum(keyOnly)/numel(theseTrials), ...
-                sum(eyeOnly), numel(theseTrials), 100*sum(eyeOnly)/numel(theseTrials));
+                sum(eyeOnly), numel(theseTrials), 100*sum(eyeOnly)/numel(theseTrials), ...
+                sum(consistent), numel(theseTrials), 100*sum(consistent)/numel(theseTrials));
         end
 
         %% behavioural stats
