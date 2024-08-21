@@ -93,7 +93,8 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
         end
         
         function fixDuration = getFixDuration(d)
-            fixDuration = d.meta.cic.fixDuration('time',Inf,'trial',1).data;
+            % fixDuration = d.meta.cic.fixDuration('time',Inf,'trial',1).data;
+            fixDuration = d.meta.fixstim.fixDuration('time',Inf).data;
         end
         % function nRepPerCond = getNRepPerCond(d)
         %     nRepPerCond = d.meta.cic.nRepPerCond('time',Inf,'trial',1).data;
