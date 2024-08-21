@@ -238,9 +238,11 @@ if strcmp(args.patchType,'grating')
     fm{2}.phase = 0;  
 end
 
-pc = stimuli.fixation(c,'patchCountour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
-pc.shape = 'CIRC';               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
-pc.size = 2*(args.radius+1); % units?
+%pc = stimuli.fixation(c,'patchCountour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
+pc = stimuli.arc(c,'patchCountour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
+pc.linewidth= 10;               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
+pc.arcAngle = 360;
+pc.outerRad = args.radius;
 pc.color = [1 1 1];
 pc.on = '@patch1.on';
 pc.duration = args.tDur;
