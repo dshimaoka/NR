@@ -105,7 +105,7 @@ dotSize = 4;%5; %dot size [pix]
 nrDots = 200; %number of dots
 
 %grating
-frequency = 0.5; %spatial frequency in cycles per visual angle in degree (not pixel) %Kapoor 2022
+frequency = 0.1; %0.5;%spatial frequency in cycles per visual angle in degree (not pixel) %Kapoor 2022
 
 import neurostim.*
 commandwindow;
