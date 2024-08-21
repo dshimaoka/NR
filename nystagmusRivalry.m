@@ -223,6 +223,7 @@ fm{1}.on = '@fixstim.off'; %first stimulus
 fm{2}.on = '@fixstim.off'; %first stimulus
 %fm{2}.on = '@patch1.on + cic.SOA'; %2nd stimulus
 fm{1}.duration = c.tDur;%'@cic.tDur  - patch2.physicalAlteration * (cic.tDur - cic.SOA)';  %if physicalAlteration=1, terminate after jitteredSOA
+fm{1}.duration = '@iff(patch2.physicalAlteration, cic.SOA, cic.tDur)';
 %fm{2}.duration = c.tDur - c.SOA;
 fm{2}.duration = c.tDur;
 fm{2}.addProperty('congruent', '@fix(patch1.conditionSwitch/2)'); %whether the second patch moves the same direction with the 1st patch
