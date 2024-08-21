@@ -238,6 +238,13 @@ if strcmp(args.patchType,'grating')
     fm{2}.phase = 0;  
 end
 
+pc = stimuli.fixation(c,'patchCountour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
+pc.shape = 'CIRC';               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
+pc.size = 2*(args.radius+1); % units?
+pc.color = [1 1 1];
+pc.on = '@patch1.on';
+pc.duration = args.tDur;
+
 %% ========== Add required behaviours =========
 %Subject's 2AFC response to control inter-trial interval ... not necessary?
 k = behaviors.keyResponse(c,'keypress'); %registered upto once per trial
