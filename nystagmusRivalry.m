@@ -122,7 +122,9 @@ commandwindow;
 c = marmolab.rigcfg('debug',args.debug, p.Unmatched); % set to false to save githash at start of each experiment!
 %c = myRig;
 c.paradigm = 'nystagmusRivalry';
-c.addProperty('fixDuration', fixDuration);
+% c.addProperty('fixDuration', fixDuration);
+c.addProperty('fixDuration', []);
+c.fixDuration = plugins.jitter(c, {300, 1000},'distribution','uniform');
 %c.addProperty('jitteredSOA',[]);
 %c.jitteredSOA = plugins.jitter(c,{args.SOA(1), args.SOA(2)}); %MEANINGLESS
 c.addProperty('SOA',args.SOA);
