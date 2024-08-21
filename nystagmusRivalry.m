@@ -92,7 +92,7 @@ args = p.Results;
 
 %% fixed parameters
 radius_init = 2;%initial fixation radius[deg] value from OcuFol and cueSaccade
-fixDurationRange = [300 500]; % [ms] minimum duration of fixation to initiate patch stimuli
+fixDurationRange = {300, 500}; % [ms] minimum duration of fixation to initiate patch stimuli
 fixationDeadline = 5000; %[ms] maximum time to initiate a trial 
 iti = 1000; %[ms] inter trial interval
 
@@ -156,7 +156,7 @@ f.size = 0.25; % units?
 f.color = [1 1 1];
 f.addProperty('fixDurationRange', fixDurationRange);
 f.addProperty('fixDuration', []); %should NOT add jitteer to cic. See jitteredITIdemo.m
-f.fixDuration = plugins.jitter(c, {fixDurationRange},'distribution','uniform');
+f.fixDuration = plugins.jitter(c, fixDurationRange,'distribution','uniform');
 f.on=0;                         % What time should the stimulus come on? (all times are in ms)
 f.duration = '@fixbhv.startTime.fixating+fixstim.fixDuration'; % Show spot briefly after fixation acquired
 f.X = 0;
