@@ -229,8 +229,8 @@ if strcmp(args.patchType,'grating')
     fm{2}.directionPolarity = '@(2*patch2.congruent-1) * patch1.directionPolarity';
     fm{1}.phaseSpeed = '@360*patch1.directionPolarity * patch1.speed * patch1.frequency /patch1.frameRate'; %[deg/frame]
     fm{2}.phaseSpeed = '@360*patch2.directionPolarity * patch2.speed * patch2.frequency /patch2.frameRate'; %[deg/frame] 
-    fm{1}.phase = plugins.jitter(c, {0,359},'distribution','uniform'); 
-    fm{2}.phase = '@patch1.phase';  
+    fm{1}.phase = 0;%plugins.jitter(c, {0,359},'distribution','uniform'); 
+    fm{2}.phase = 0;%'@patch1.phase';  
 end
 
 %pc = stimuli.fixation(c,'patchCountour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
