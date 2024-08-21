@@ -177,12 +177,14 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
         end
 
         function patch2Start = getPatch2Start(d)
-            patch2Start = 1e3*(d.meta.patch2.startTime('time',Inf)- d.meta.cic.firstFrame('time',Inf))'; %ms
+            %patch2Start = 1e3*(d.meta.patch2.startTime('time',Inf)- d.meta.cic.firstFrame('time',Inf))'; %ms
+            patch2Start = 1e3*(d.meta.patch2.color('time',Inf).time - d.meta.cic.firstFrame('time',Inf))'; %ms
             patch2Start(patch2Start<0) = NaN;
         end
 
         function patch1Stop = getPatch1Stop(d)
-            patch1Stop = 1e3*(d.meta.patch1.stopTime('time',Inf)- d.meta.cic.firstFrame('time',Inf))'; %ms
+            %patch1Stop = 1e3*(d.meta.patch1.stopTime('time',Inf)- d.meta.cic.firstFrame('time',Inf))'; %ms
+            patch1Stop = 1e3*(d.meta.patch1.color('time',Inf).time - d.meta.cic.firstFrame('time',Inf))'; %ms
             patch1Stop(patch1Stop<0) = NaN; %ms
         end
 
