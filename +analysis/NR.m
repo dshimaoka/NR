@@ -104,6 +104,18 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             rewardVol = d.meta.cic.rewardVol('time',Inf,'trial',1).data;
         end
 
+        function patch1Phase = getPatch1Phase(d)
+            patch1Phase = d.meta.patch1.phase('time',Inf).data;
+        end
+        
+        %function patch2Phase = getPatch2Phase(d)
+            %FIXME: phase is fixed at the start of a trial. spatialphase is inaccessible
+            % patch2Phase = nan(d.numTrials,1);
+            % for itr = d.numTrials
+            %     patch2Phase(itr) = d.meta.patch2.phase('time',d.patch2Start(itr)).data;
+            % end
+        %end
+
         function conditionSwitchList = getConditionSwitchList(d)
             conditionSwitchList = d.meta.cic.conditionSwitch('time',Inf,'trial',1).data;
         end
@@ -183,8 +195,7 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
         end
 
         function patch1Stop = getPatch1Stop(d)
-            %patch1Stop = 1e3*(d.meta.patch1.stopTime('time',Inf)- d.meta.cic.firstFrame('time',Inf))'; %ms
-            patch1Stop = 1e3*(d.meta.patch1.color('time',Inf).time - d.meta.cic.firstFrame('time',Inf))'; %ms
+            patch1Stop = 1e3*(d.meta.patch1.stopTime('time',Inf)- d.meta.cic.firstFrame('time',Inf))'; %ms
             patch1Stop(patch1Stop<0) = NaN; %ms
         end
 
