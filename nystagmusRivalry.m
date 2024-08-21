@@ -217,10 +217,10 @@ fm{1}.addProperty('conditionSwitch', 1);
 fm{1}.addProperty('redFirst',0);
 %fm{1}.redFirst = plugins.jitter(c,{0, 1},'distribution','1ofN'); %NG always return 1
 fm{1}.color = '@0.5*[cic.redLuminance*patch1.redFirst 0.0 1-patch1.redFirst]';  %0.5x is necessary for the hack of blend in cic
-fm{2}.color = '@0.5*[cic.redLuminance*(1-patch1.redFirst) 0.0 patch1.redFirst]';  %0.5x is necessary for the hack of blend in cic 
+fm{2}.color = '@iff(cic.trialTime < patch1.on + cic.SOA, [0 0 0 0], 0.5*[cic.redLuminance*(1-patch1.redFirst) 0.0 patch1.redFirst])';  %0.5x is necessary for the hack of blend in cic 
 fm{1}.on = '@fixstim.off'; %first stimulus
-%fm{2}.on = plugins.jitter(c,{c.SOA(1), c.SOA(2)});% + '@patch1.on'; %2nd stimulus
-fm{2}.on = '@patch1.on + cic.SOA'; %2nd stimulus
+fm{2}.on = '@fixstim.off'; %first stimulus
+%fm{2}.on = '@patch1.on + cic.SOA'; %2nd stimulus
 fm{1}.duration = '@cic.tDur  - patch2.physicalAlteration * (cic.tDur - cic.SOA)';  %if physicalAlteration=1, terminate after jitteredSOA
 fm{2}.duration = c.tDur - c.SOA;
 fm{2}.addProperty('congruent', '@fix(patch1.conditionSwitch/2)'); %whether the second patch moves the same direction with the 1st patch
@@ -234,7 +234,7 @@ if strcmp(args.patchType,'grating')
     fm{2}.directionPolarity = '@(2*patch2.congruent-1) * patch1.directionPolarity';
     fm{1}.phaseSpeed = '@360*patch1.directionPolarity * patch1.speed * patch1.frequency /patch1.frameRate'; %[deg/frame]
     fm{2}.phaseSpeed = '@360*patch2.directionPolarity * patch2.speed * patch2.frequency /patch2.frameRate'; %[deg/frame] 
-    fm{1}.phase = '@mod(-patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 - 270 - 90*patch2.physicalAlteration, 360)';%works in condSwitch=0(&2) not 1
+    fm{1}.phase = 0; %'@mod(-patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 - 270 - 90*patch2.physicalAlteration, 360)';%works in condSwitch=0(&2) not 1
     fm{2}.phase = 0;  
 end
 
