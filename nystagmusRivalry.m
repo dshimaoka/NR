@@ -92,7 +92,7 @@ args = p.Results;
 
 %% fixed parameters
 radius_init = 2;%initial fixation radius[deg] value from OcuFol and cueSaccade
-fixDuration = 300; % [ms] minimum duration of fixation to initiate patch stimuli
+fixDurationRange = [300 500]; % [ms] minimum duration of fixation to initiate patch stimuli
 fixationDeadline = 5000; %[ms] maximum time to initiate a trial 
 iti = 1000; %[ms] inter trial interval
 
@@ -123,8 +123,6 @@ c = marmolab.rigcfg('debug',args.debug, p.Unmatched); % set to false to save git
 %c = myRig;
 c.paradigm = 'nystagmusRivalry';
 % c.addProperty('fixDuration', fixDuration);
-c.addProperty('fixDuration', []);
-c.fixDuration = plugins.jitter(c, {300, 1000},'distribution','uniform');
 %c.addProperty('jitteredSOA',[]);
 %c.jitteredSOA = plugins.jitter(c,{args.SOA(1), args.SOA(2)}); %MEANINGLESS
 c.addProperty('SOA',args.SOA);
@@ -156,8 +154,10 @@ f = stimuli.fixation(c,'fixstim');    % Add a fixation stimulus object (named "f
 f.shape = 'CIRC';               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
 f.size = 0.25; % units?
 f.color = [1 1 1];
+f.addProperty('fixDuration', []); %should NOT add jitteer to cic. See jitteredITIdemo.m
+f.fixDuration = plugins.jitter(c, {300, 1000},'distribution','uniform');
 f.on=0;                         % What time should the stimulus come on? (all times are in ms)
-f.duration = '@fixbhv.startTime.fixating+cic.fixDuration'; % Show spot briefly after fixation acquired
+f.duration = '@fixbhv.startTime.fixating+fixstim.fixDuration'; % Show spot briefly after fixation acquired
 f.X = 0;
 f.Y = 0;
 
