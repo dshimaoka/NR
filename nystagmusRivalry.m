@@ -212,9 +212,9 @@ for ii = 1:nrConds
 end
 fm{1}.addProperty('conditionSwitch', 1);
 fm{1}.addProperty('redFirst',0);
-fm{1}.color = [0 0 0 0];%'@0.5*[cic.redLuminance*patch1.redFirst 0.0 1-patch1.redFirst]';  %0.5x is necessary for the hack of blend in cic
-%fm{2}.color = '@iff(cic.trialTime < patch1.on + cic.SOA, [0 0 0 0], 0.5*[cic.redLuminance*(1-patch1.redFirst) 0.0 patch1.redFirst])';  %0.5x is necessary for the hack of blend in cic 
-fm{2}.color = '@0.5*[cic.redLuminance*(1-patch1.redFirst) 0.0 patch1.redFirst]'; 
+fm{1}.color = '@0.5*[cic.redLuminance*patch1.redFirst 0.0 1-patch1.redFirst]';  %0.5x is necessary for the hack of blend in cic
+fm{2}.color = '@iff(cic.trialTime < patch1.on + cic.SOA, [0 0 0 0], 0.5*[cic.redLuminance*(1-patch1.redFirst) 0.0 patch1.redFirst])';  %0.5x is necessary for the hack of blend in cic 
+%fm{2}.color = '@0.5*[cic.redLuminance*(1-patch1.redFirst) 0.0 patch1.redFirst]'; 
 fm{1}.on = '@fixstim.off'; %first stimulus
 fm{2}.on = '@fixstim.off'; %first stimulus
 fm{1}.duration = '@iff(patch2.physicalAlteration, cic.SOA, cic.tDur)';
@@ -228,7 +228,6 @@ if strcmp(args.patchType,'grating')
     fm{2}.orientation = '@patch1.orientation';
     fm{1}.directionPolarity = '@-2*fix(patch1.direction/180) + 1';
     fm{2}.directionPolarity = '@iff((cic.trialTime >= patch1.on + cic.SOA).*(patch1.conditionSwitch <= 1),  -patch1.directionPolarity, patch1.directionPolarity)';
-    %fm{2}.directionPolarity = '@iff((2*patch2.congruent-1) * patch1.directionPolarity';
     fm{1}.phaseSpeed = '@360*patch1.directionPolarity * patch1.speed * patch1.frequency /patch1.frameRate'; %[deg/frame]
     fm{2}.phaseSpeed = '@360*patch2.directionPolarity * patch2.speed * patch2.frequency /patch2.frameRate'; %[deg/frame] 
     fm{1}.phase = plugins.jitter(c, {0,359},'distribution','uniform'); 
