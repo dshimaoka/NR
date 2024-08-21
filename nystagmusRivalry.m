@@ -226,7 +226,8 @@ if strcmp(args.patchType,'grating')
     fm{1}.orientation = '@mod(patch1.direction, 180) - 90';
     fm{2}.orientation = '@patch1.orientation';
     fm{1}.directionPolarity = '@-2*fix(patch1.direction/180) + 1';
-    fm{2}.directionPolarity = '@(2*patch2.congruent-1) * patch1.directionPolarity';
+    fm{2}.directionPolarity = '@iff((cic.trialTime >= patch1.on).*(patch1.conditionSwitch <= 1),  -patch1.directionPolarity, patch1.directionPolarity)';
+    %fm{2}.directionPolarity = '@iff((2*patch2.congruent-1) * patch1.directionPolarity';
     fm{1}.phaseSpeed = '@360*patch1.directionPolarity * patch1.speed * patch1.frequency /patch1.frameRate'; %[deg/frame]
     fm{2}.phaseSpeed = '@360*patch2.directionPolarity * patch2.speed * patch2.frequency /patch2.frameRate'; %[deg/frame] 
     fm{1}.phase = plugins.jitter(c, {0,359},'distribution','uniform'); 
