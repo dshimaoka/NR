@@ -59,6 +59,16 @@ function nystagmusRivalry(subject,varargin)
 %
 %
 
+%% checkout my neurostim branch
+nrDirectory = fileparts(mfilename('fullpath'));
+nsDirectory = strrep(nrDirectory,'NR','neurostim');
+originalHash = marmolab.getGitHash(nsDirectory);
+cd(nsDirectory);
+[~, cmdOutput] = system(sprintf('git show-ref superposition'));
+myHash = cmdOutput(1:40); %myHash = '141539c45b2263844e1e72ed9a4677b3cd19159f';
+system(sprintf('git checkout %s', myHash));
+cd(nrDirectory);
+
 %% PARAMETER DEFINITIONS
 
 if ~exist('subject','var')
@@ -244,7 +254,6 @@ pc.on = '@patch1.on';
 pc.duration = args.tDur;
 
 %% ========== Add required behaviours =========
-%Subject's 2AFC response to control inter-trial interval ... not necessary?
 k = behaviors.keyResponse(c,'keypress'); %registered upto once per trial
 k.from = '@patch1.on'; % end of patch
 k.maximumRT= Inf;                   %Allow inf time for a response
@@ -365,6 +374,10 @@ c.eye.doTrackerSetupEachBlock = true; %KY disabled
 c.subject = args.subject; %params.subj; %'NP';
 c.run(myBlk{1}); %cf. KY c.run(myBlk,'nrRepeats',500);
 
+%% return to original neurostim branch
+cd(nsDirectory);
+system(sprintf('git checkout %s', originalHash));
+cd(nrDirectory);
 
 % Quick check of framedrops
 %
