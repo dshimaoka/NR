@@ -134,6 +134,7 @@ commandwindow;
 %Create a Command and Intelligence Centre object (the central controller for everything). Here a cic is returned with some default settings for this computer, if it is recognized.
 c = marmolab.rigcfg('debug',args.debug, p.Unmatched); % set to false to save githash at start of each experiment!
 c.hardware.keyEcho = false;
+c.saveEveryN = 1;
 
 c.paradigm = 'nystagmusRivalry';
 c.addProperty('SOA',args.SOA);
