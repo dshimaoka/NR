@@ -92,10 +92,10 @@ p.addParameter('conditionSwitch', [0 1 2], @(x) validateattributes(x,{'numeric'}
 %conditionSwitch = 2: congruent direction between two patches
 
 %patch stimuli
-p.addParameter('patchType','rdp',@(x) validateattributes(x,{'char'},{'nonempty'})); %rdp or grating
-p.addParameter('dir1List',[0 45 90 135 180 225 270 315], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
-p.addParameter('speed',6, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
-p.addParameter('radius',4, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
+p.addParameter('patchType','grating',@(x) validateattributes(x,{'char'},{'nonempty'})); %rdp or grating
+p.addParameter('dir1List',0:45:315, @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
+p.addParameter('speed',11, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
+p.addParameter('radius',15, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
 p.addParameter('SOA', 900, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %stimulus onset after the end of fixation
 
 p.addParameter('fixRequired',true,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
@@ -133,7 +133,8 @@ commandwindow;
 
 %Create a Command and Intelligence Centre object (the central controller for everything). Here a cic is returned with some default settings for this computer, if it is recognized.
 c = marmolab.rigcfg('debug',args.debug, p.Unmatched); % set to false to save githash at start of each experiment!
-%c = myRig;
+c.hardware.keyEcho = false;
+
 c.paradigm = 'nystagmusRivalry';
 c.addProperty('SOA',args.SOA);
 c.addProperty('tDur',args.tDur);
