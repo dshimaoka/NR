@@ -276,7 +276,7 @@ g.tolerance = '@iff(fixbhv.isFixating, fixbhv.radius, fixbhv.radius_init)'; % (d
 %FIXME
 
 g.required = args.fixRequired; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
-g.failEndsTrial = true;
+g.failEndsTrial = args.fixRequired;;
 g.successEndsTrial = false; %cf. false in OcuFol
 
 it = behaviors.fixate(c,'interval');
