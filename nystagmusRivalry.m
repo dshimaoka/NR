@@ -168,7 +168,11 @@ f.addProperty('fixDurationRange', fixDurationRange);
 f.addProperty('fixDuration', []); %should NOT add jitteer to cic. See jitteredITIdemo.m
 f.fixDuration = plugins.jitter(c, fixDurationRange,'distribution','uniform');
 f.on=0;                         % What time should the stimulus come on? (all times are in ms)
-f.duration = '@fixbhv.startTime.fixating+fixstim.fixDuration'; % Show spot briefly after fixation acquired
+if args.fixRequired
+    f.duration = '@fixbhv.startTime.fixating+fixstim.fixDuration'; % Show spot briefly after fixation acquired
+else
+    f.duration = '@fixstim.fixDuration';
+end
 f.X = 0;
 f.Y = 0;
 
@@ -276,7 +280,7 @@ g.tolerance = '@iff(fixbhv.isFixating, fixbhv.radius, fixbhv.radius_init)'; % (d
 %FIXME
 
 g.required = args.fixRequired; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
-g.failEndsTrial = args.fixRequired;;
+g.failEndsTrial = args.fixRequired;
 g.successEndsTrial = false; %cf. false in OcuFol
 
 it = behaviors.fixate(c,'interval');
