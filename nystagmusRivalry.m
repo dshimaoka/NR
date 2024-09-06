@@ -79,6 +79,7 @@ validateattributes(subject,{'char'},{'nonempty'},'','subject',1);
 
 % parse arguments...
 p = inputParser();
+
 p.KeepUnmatched = true;
 p.addRequired('subject',@(x) validateattributes(x,{'char'},{'nonempty'}));
 p.addParameter('debug',false,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
@@ -96,6 +97,8 @@ p.addParameter('dir1List',[0 45 90 135 180 225 270 315], @(x) validateattributes
 p.addParameter('speed',6, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
 p.addParameter('radius',4, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
 p.addParameter('SOA', 900, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %stimulus onset after the end of fixation
+
+p.addParameter('fixRequired',true,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 
 p.parse(subject,varargin{:});
 args = p.Results;
@@ -272,7 +275,7 @@ g.Y = 0; %'@traj.Y';
 g.tolerance = '@iff(fixbhv.isFixating, fixbhv.radius, fixbhv.radius_init)'; % (deg) allowed eye position error - should be aiming to get this as small as possible
 %FIXME
 
-g.required = true; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
+g.required = args.fixRequired; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
 g.failEndsTrial = true;
 g.successEndsTrial = false; %cf. false in OcuFol
 
