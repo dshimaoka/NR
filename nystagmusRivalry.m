@@ -21,9 +21,9 @@ function nystagmusRivalry(subject,varargin)
 % - presentation of a first patch, followed by a second patch after SOA
 % - maitaining fixation within radius gets rewarded
 %
-% 
+%
 % Requirements for this code:
-% 1: change GLSLshaders/gabor.frag as: factor =  1.0 * ev +contrast * ev * sv * tev; (l.124) 
+% 1: change GLSLshaders/gabor.frag as: factor =  1.0 * ev +contrast * ev * sv * tev; (l.124)
 % this will make the background of gratings black
 % 2: change blending in cic as: Screen(c.mainWindow,'BlendFunction',GL_ONE, GL_ONE);  (l.2092)
 % this will enable overlapping two patches without changing luminance of each
@@ -103,7 +103,7 @@ args = p.Results;
 %% fixed parameters
 radius_init = 2;%initial fixation radius[deg] value from OcuFol and cueSaccade
 fixDurationRange = {300, 500}; % [ms] minimum duration of fixation to initiate patch stimuli
-fixationDeadline = 5000; %[ms] maximum time to initiate a trial 
+fixationDeadline = 5000; %[ms] maximum time to initiate a trial
 iti = 1000; %[ms] inter trial interval
 
 %luminance correction
@@ -175,12 +175,12 @@ s = RandStream('mt19937ar');
 nrConds = 2;
 fm = cell(nrConds,1);
 for ii = 1:nrConds
-    
+
     reset(s, 1);%args.rngSeed);
 
     stimName = ['patch' num2str(ii)];
     %patch1: presented 1st, patch2: presented 2nd after SOA
-    
+
     if strcmp(args.patchType, 'rdp')
         fm{ii} = neurostim.stimuli.rdp(c,stimName);
         %rdp specific parameters
@@ -210,10 +210,10 @@ for ii = 1:nrConds
         fm{ii}.orientation = 0;
         fm{ii}.addProperty('direction',0);
         fm{ii}.addProperty('directionPolarity',0);
-        fm{ii}.addProperty('speed',args.speed);  
+        fm{ii}.addProperty('speed',args.speed);
         %TODO: align temporal phase between patches?
     end
-    
+
     %common parameters across stim
     fm{ii}.X = 0;
     fm{ii}.Y = 0;
@@ -223,8 +223,8 @@ end
 fm{1}.addProperty('conditionSwitch', 1);
 fm{1}.addProperty('redFirst',0);
 fm{1}.color = '@0.5*[cic.redLuminance*patch1.redFirst 0.0 1-patch1.redFirst]';  %0.5x is necessary for the hack of blend in cic
-fm{2}.color = '@iff(cic.trialTime < patch1.on + cic.SOA, [0 0 0 0], 0.5*[cic.redLuminance*(1-patch1.redFirst) 0.0 patch1.redFirst])';  %0.5x is necessary for the hack of blend in cic 
-%fm{2}.color = '@0.5*[cic.redLuminance*(1-patch1.redFirst) 0.0 patch1.redFirst]'; 
+fm{2}.color = '@iff(cic.trialTime < patch1.on + cic.SOA, [0 0 0 0], 0.5*[cic.redLuminance*(1-patch1.redFirst) 0.0 patch1.redFirst])';  %0.5x is necessary for the hack of blend in cic
+%fm{2}.color = '@0.5*[cic.redLuminance*(1-patch1.redFirst) 0.0 patch1.redFirst]';
 fm{1}.on = '@fixstim.off'; %first stimulus
 fm{2}.on = '@fixstim.off'; %first stimulus
 fm{1}.duration = '@iff(patch2.physicalAlteration, cic.SOA, cic.tDur)';
@@ -239,9 +239,9 @@ if strcmp(args.patchType,'grating')
     fm{1}.directionPolarity = '@-2*fix(patch1.direction/180) + 1';
     fm{2}.directionPolarity = '@iff((cic.trialTime >= patch1.on + cic.SOA).*(patch1.conditionSwitch <= 1),  -patch1.directionPolarity, patch1.directionPolarity)';
     fm{1}.phaseSpeed = '@360*patch1.directionPolarity * patch1.speed * patch1.frequency /patch1.frameRate'; %[deg/frame]
-    fm{2}.phaseSpeed = '@360*patch2.directionPolarity * patch2.speed * patch2.frequency /patch2.frameRate'; %[deg/frame] 
-    fm{1}.phase = plugins.jitter(c, {0,359},'distribution','uniform'); 
-    fm{2}.phase = '@patch1.phase';  
+    fm{2}.phaseSpeed = '@360*patch2.directionPolarity * patch2.speed * patch2.frequency /patch2.frameRate'; %[deg/frame]
+    fm{1}.phase = plugins.jitter(c, {0,359},'distribution','uniform');
+    fm{2}.phase = '@patch1.phase';
 end
 
 %pc = stimuli.fixation(c,'patchCountour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
@@ -276,13 +276,13 @@ g.required = true; % This is a required behavior. Any trial in which fixation is
 g.failEndsTrial = true;
 g.successEndsTrial = false; %cf. false in OcuFol
 
-it = behaviors.fixate(c,'interval');    
+it = behaviors.fixate(c,'interval');
 it.from = '@patch2.off';
 it.tolerance = Inf; % What time should the stimulus come on? (all times are in ms)
-it.to = '@patch2.off + cic.interTrialInterval'; 
+it.to = '@patch2.off + cic.interTrialInterval';
 it.X = 0;
 it.Y = 0;
-it.required = true; 
+it.required = true;
 it.failEndsTrial = true;
 it.successEndsTrial = true; %cf. false in OcuFol
 
@@ -303,10 +303,10 @@ if strcmp(args.patchType,'rdp')
     stopLog(c.patch2.prms.yspeed);
 end
 
-stopLog(c.patch1.prms.rsvpIsi); 
-stopLog(c.patch1.prms.disabled); 
-stopLog(c.patch2.prms.rsvpIsi); 
-stopLog(c.patch2.prms.disabled); 
+stopLog(c.patch1.prms.rsvpIsi);
+stopLog(c.patch1.prms.disabled);
+stopLog(c.patch2.prms.rsvpIsi);
+stopLog(c.patch2.prms.disabled);
 
 stopLog(c.keypress.prms.event);
 stopLog(c.keypress.prms.state);
@@ -328,15 +328,15 @@ stopLog(c.fixstim.prms.duration);
 %% ========== Specify feedback/rewards =========
 % % Play a correct/incorrect sound for the 2AFC task
 % plugins.sound(c);           %Use the sound plugin
-% 
+%
 % % Add correct/incorrect feedback
 % s= plugins.soundFeedback(c,'soundFeedback');
 % s.add('waveform','correct.wav','when','afterTrial','criterion','@choice.correct');
 % s.add('waveform','incorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
 
 if true && ~isempty(c.pluginsByClass('newera'))
-  % add liquid reward... newera syringe pump  
-  c.newera.add('volume',args.rewardVol,'when','AFTERTRIAL','criterion','@fixbhv.isSuccess');
+    % add liquid reward... newera syringe pump
+    c.newera.add('volume',args.rewardVol,'when','AFTERTRIAL','criterion','@fixbhv.isSuccess');
 end
 
 
@@ -389,27 +389,29 @@ cd(nrDirectory);
 %   frDrop{a} = d.meta.cic.frameDrop('trial',a).data;
 % end
 % nDrop = cellfun('length',frDrop)
-%
+
 %% Check frame drops:
-% fName = '/home/marmolab/data/2022/12/13/easyD.test.161617.mat'; %'/home/marmolab/data/2022/12/13/tst.pursuit2D.161358.mat'; %'/home/marmolab/data/2022/12/13/tst.pursuit2D.152612.mat' %'/home/marmolab/data/2022/11/29/tst.pursuit2D.220253.mat';
-% load(fName)
-fd=get(c.prms.frameDrop,'struct',true);
+if args.debug
+    % fName = '/home/marmolab/data/2022/12/13/easyD.test.161617.mat'; %'/home/marmolab/data/2022/12/13/tst.pursuit2D.161358.mat'; %'/home/marmolab/data/2022/12/13/tst.pursuit2D.152612.mat' %'/home/marmolab/data/2022/11/29/tst.pursuit2D.220253.mat';
+    % load(fName)
+    fd=get(c.prms.frameDrop,'struct',true);
 
-dt = [];
-tr = unique(fd.trial);
-figure('Name','Dropped frames')
-subplot(3,1,1:2)
-for a = tr'
-    x = fd.trialTime(fd.trial==a); % times for this trial
-    dt = [dt; diff(x)];
-    plot(x,a*ones(size(x)),'ko')
-    hold on
+    dt = [];
+    tr = unique(fd.trial);
+    figure('Name','Dropped frames')
+    subplot(3,1,1:2)
+    for a = tr'
+        x = fd.trialTime(fd.trial==a); % times for this trial
+        dt = [dt; diff(x)];
+        plot(x,a*ones(size(x)),'ko')
+        hold on
+    end
+    xlim([0 max(fd.trialTime)])
+    ylabel('Trial')
+    xlabel('trialTime (ms)')
+
+    subplot(3,1,3)
+    histogram(dt,0:10:2000)
+    xlabel('delta (ms)')
+    ylabel('count')
 end
-xlim([0 max(fd.trialTime)])
-ylabel('Trial')
-xlabel('trialTime (ms)')
-
-subplot(3,1,3)
-histogram(dt,0:10:2000)
-xlabel('delta (ms)')
-ylabel('count')
