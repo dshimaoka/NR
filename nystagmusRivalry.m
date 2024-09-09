@@ -84,7 +84,7 @@ p.KeepUnmatched = true;
 p.addRequired('subject',@(x) validateattributes(x,{'char'},{'nonempty'}));
 p.addParameter('debug',false,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 p.addParameter('tDur',1800,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % trial duration from onset of first patch (ms)
-p.addParameter('nRepPerCond',3,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % number of repeats of each condition
+p.addParameter('nRepPerCond',3,@(x) validateattributes(x,{'numeric'},{'scalar','positive'}));  % number of repeats of each condition
 p.addParameter('rewardVol',0.035,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
 p.addParameter('conditionSwitch', [0 1 2], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'}));
 %conditionSwitch = 0: binocular flash suppression
@@ -100,6 +100,8 @@ p.addParameter('SOA', 900, @(x) validateattributes(x,{'numeric'},{'scalar','none
 
 p.addParameter('fixRequired',true,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 
+p.addParameter('afterStimDur',500,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % blank duration after 2nd patch w eye record(ms)
+
 p.parse(subject,varargin{:});
 args = p.Results;
 
@@ -107,7 +109,7 @@ args = p.Results;
 radius_init = 2;%initial fixation radius[deg] value from OcuFol and cueSaccade
 fixDurationRange = {300, 500}; % [ms] minimum duration of fixation to initiate patch stimuli
 fixationDeadline = 5000; %[ms] maximum time to initiate a trial
-iti = 1000; %[ms] inter trial interval
+iti = 500; %[ms] inter trial interval
 
 %luminance correction
 redLuminance = 171/255; %Fraser ... Miller 2023
@@ -127,7 +129,7 @@ commandwindow;
 % nTotTrials = args.nRepPerCond * numel(args.dir1List) * 2 * numel(args.conditionSwitch) % direction x (congruent / incongruent) * (red/blue)
 
 % estimated experiment duration [s]
-% nTotTrials x (args.tDur + ITI + fixDuration) * 1e-3
+% nTotTrials x (args.tDur + afterStimDur + iti + fixDuration) * 1e-3
 
 %% ========= Specify rig configuration  =========
 
@@ -145,7 +147,6 @@ c.addProperty('patchType', args.patchType);
 c.addProperty('rewardVol', args.rewardVol);
 c.addProperty('fixationDeadline',fixationDeadline);
 c.addProperty('conditionSwitch', args.conditionSwitch);
-c.addProperty('interTrialInterval', iti);
 
 if ~args.debug % log git hash
     hash = marmolab.getGitHash(fileparts(mfilename('fullpath')));
@@ -285,10 +286,11 @@ g.required = args.fixRequired; % This is a required behavior. Any trial in which
 g.failEndsTrial = args.fixRequired;
 g.successEndsTrial = false; %cf. false in OcuFol
 
-it = behaviors.fixate(c,'interval');
+it = behaviors.fixate(c,'afterStim');
+it.addProperty('afterStimDur',args.afterStimDur);
 it.from = '@patch2.off';
 it.tolerance = Inf; % What time should the stimulus come on? (all times are in ms)
-it.to = '@patch2.off + cic.interTrialInterval';
+it.to = '@patch2.off + afterStim.afterStimDur';
 it.X = 0;
 it.Y = 0;
 it.required = true;
@@ -353,7 +355,7 @@ end
 c.trialDuration = Inf; %'@choice.stopTime';       %End the trial as soon as the 2AFC response is made.
 % c.trialDuration = '@choice.stopTime + faces.duration'; %cuesaccde
 % c.trialDuration = '@tarBr.startTime.fixating + tarBr.ps + 300'; %OcuFol
-c.iti = 0;%iti;
+c.iti = iti;%iti;
 
 %  Specify experimental conditions
 % For threshold estimation, we'd just vary speed
