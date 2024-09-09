@@ -381,6 +381,7 @@ c.eye.doTrackerSetupEachBlock = true; %KY disabled
 % c.setPluginOrder('mov','blank','fix','tar','fWindow','sWindow'); %KY
 
 c.subject = args.subject; %params.subj; %'NP';
+
 c.run(myBlk{1}); %cf. KY c.run(myBlk,'nrRepeats',500);
 
 %% return to original neurostim branch
