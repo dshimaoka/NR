@@ -133,7 +133,8 @@ disp(['Expected duration ' num2str(nTotTime) '[s]']);
 
 %Create a Command and Intelligence Centre object (the central controller for everything). Here a cic is returned with some default settings for this computer, if it is recognized.
 c = marmolab.rigcfg('debug',args.debug, p.Unmatched); % set to false to save githash at start of each experiment!
-%c = myRig;
+c.screen.overlayClut(4,:)=0; %delete grids on the subject display
+
 c.paradigm = 'nystagmusRivalry';
 c.addProperty('fixDuration', fixDuration);
 %c.addProperty('jitteredSOA',[]);
