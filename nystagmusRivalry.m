@@ -132,7 +132,7 @@ commandwindow;
 nTotTrials = args.nRepPerCond * numel(args.dir1List) * 2 * numel(args.conditionSwitch); % direction x (congruent / incongruent) * (red/blue)
 
 % estimated experiment duration [s]
-nTotTime = nTotTrials + (args.tDur + args.afterStimDur + iti + mean(cell2mat(fixDurationRange))) * 1e-3;
+nTotTime = nTotTrials * (args.tDur + args.afterStimDur + iti + mean(cell2mat(fixDurationRange))) * 1e-3;
 disp(['Expected duration ' num2str(nTotTime) '[s]']);
 
 %% ========= Specify rig configuration  =========
@@ -363,7 +363,7 @@ end
 c.trialDuration = Inf; %'@choice.stopTime';       %End the trial as soon as the 2AFC response is made.
 % c.trialDuration = '@choice.stopTime + faces.duration'; %cuesaccde
 % c.trialDuration = '@tarBr.startTime.fixating + tarBr.ps + 300'; %OcuFol
-c.iti = iti;%iti;
+c.iti = iti;
 
 %  Specify experimental conditions
 % For threshold estimation, we'd just vary speed
