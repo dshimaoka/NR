@@ -241,7 +241,7 @@ fm{2}.color = '@iff(cic.trialTime < patch1.on + cic.SOA, [0 0 0 0], 0.5*[cic.red
 %fm{2}.color = '@0.5*[cic.redLuminance*(1-patch1.redFirst) 0.0 patch1.redFirst]';
 fm{1}.on = '@fixstim.off'; %first stimulus
 fm{2}.on = '@fixstim.off'; %first stimulus
-fm{1}.duration = '@iff(patch2.physicalAlteration, cic.SOA, cic.tDur)';
+fm{1}.duration = '@iff(patch2.physicalAlteration, cic.SOA, cic.tDur)'; %NOT good idea to use patch2
 fm{2}.duration = c.tDur;
 fm{2}.addProperty('congruent', '@fix(patch1.conditionSwitch/2)'); %whether the second patch moves the same direction with the 1st patch
 fm{2}.addProperty('physicalAlteration','@rem(patch1.conditionSwitch, 2)')
@@ -281,9 +281,9 @@ g.addProperty('radius',args.radius);
 g.from = fixationDeadline; % If fixation has not started at this time, move to the next trial
 %g.to = '@patch2.off';  
 if args.fixRequired
-    g.to = '@fixbhv.startTime.fixating + fixstim.fixDuration + cic.tDur'; % Show spot briefly after fixation acquired
+    g.to = '@fixbhv.startTime.fixating + fixstim.fixDuration + cic.tDur'; % NOT good idea to use fixstim here
 else
-    g.to =  '@fixstim.fixDuration +  + cic.tDur';
+    g.to =  '@fixstim.fixDuration +  cic.tDur'; % NOT good idea to use fixstim here
 end
 g.X = 0; %'@traj.X';
 g.Y = 0; %'@traj.Y';
