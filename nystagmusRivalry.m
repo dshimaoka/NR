@@ -123,7 +123,7 @@ nrDots = 200; %number of dots
 frequency = 0.5;%spatial frequency in cycles per visual angle in degree (not pixel) %Kapoor 2022
 
 %patch contour
-contourWidth  = 0.5; %[deg]
+contourWidth  = 0.01;%0.5; %[deg]
 
 import neurostim.*
 commandwindow;
