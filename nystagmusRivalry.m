@@ -119,6 +119,8 @@ nrDots = 200; %number of dots
 %grating
 frequency = 0.5; %spatial frequency in cycles per visual angle in degree (not pixel) %Kapoor 2022
 
+contourWidth = 0.5;
+
 import neurostim.*
 commandwindow;
 
@@ -248,6 +250,15 @@ if strcmp(args.patchType,'grating')
     fm{1}.phase = '@mod(-patch1.phaseSpeed*patch1.frameRate*patch1.duration/1000 - 270 - 90*patch2.physicalAlteration, 360)';%works in condSwitch=0(&2) not 1
     fm{2}.phase = 0;  
 end
+
+%% contour around the patch
+pc = stimuli.arc(c,'patchContour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
+pc.linewidth = contourWidth;               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
+pc.arcAngle = 360;
+pc.outerRad = args.radius+pc.linewidth;
+pc.color = [1 1 1];
+pc.on = '@patch1.on';
+pc.duration = args.tDur;
 
 %% ========== Add required behaviours =========
 %Subject's 2AFC response to control inter-trial interval ... not necessary?
