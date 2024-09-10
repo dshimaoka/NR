@@ -257,8 +257,7 @@ if strcmp(args.patchType,'grating')
     fm{2}.phase = '@patch1.phase';
 end
 
-%pc = stimuli.fixation(c,'patchCountour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
-pc = stimuli.arc(c,'patchCountour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
+pc = stimuli.arc(c,'patchContour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
 pc.linewidth = contourWidth;               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
 pc.arcAngle = 360;
 pc.outerRad = args.radius+pc.linewidth;
@@ -279,7 +278,12 @@ g = behaviors.fixate(c,'fixbhv');
 g.addProperty('radius_init',radius_init);
 g.addProperty('radius',args.radius);
 g.from = fixationDeadline; % If fixation has not started at this time, move to the next trial
-g.to = '@patch2.off'; %'@traj.off'; % stop tracking when trajectory ends
+%g.to = '@patch2.off';  
+if args.fixRequired
+    g.to = '@fixbhv.startTime.fixating + fixstim.fixDuration + cic.tDur'; % Show spot briefly after fixation acquired
+else
+    g.to =  '@fixstim.fixDuration +  + cic.tDur';
+end
 g.X = 0; %'@traj.X';
 g.Y = 0; %'@traj.Y';
 g.tolerance = '@iff(fixbhv.isFixating, fixbhv.radius, fixbhv.radius_init)'; % (deg) allowed eye position error - should be aiming to get this as small as possible
@@ -289,16 +293,24 @@ g.required = args.fixRequired; % This is a required behavior. Any trial in which
 g.failEndsTrial = args.fixRequired;
 g.successEndsTrial = false; %cf. false in OcuFol
 
-it = behaviors.fixate(c,'afterStim');
+% it = behaviors.fixate(c,'afterStim');
+% it.addProperty('afterStimDur',args.afterStimDur);
+% it.from = '@patch2.off';
+% it.tolerance = Inf; % What time should the stimulus come on? (all times are in ms)
+% it.to = '@patch2.off + afterStim.afterStimDur';
+% it.X = 0;
+% it.Y = 0;
+% it.required = true;
+% it.failEndsTrial = true;
+% it.successEndsTrial = true; %cf. false in OcuFol
+it = stimuli.convPoly(c,'afterStim'); %from OcuFolMC/run.m. convpoly is less demanding than behaviors.fixate?
 it.addProperty('afterStimDur',args.afterStimDur);
 it.from = '@patch2.off';
-it.tolerance = Inf; % What time should the stimulus come on? (all times are in ms)
 it.to = '@patch2.off + afterStim.afterStimDur';
-it.X = 0;
-it.Y = 0;
-it.required = true;
-it.failEndsTrial = true;
-it.successEndsTrial = true; %cf. false in OcuFol
+it.radius = 50;
+it.filled = true;
+it.color = c.screen.color.background;
+
 
 %% Turn off logging
 stopLog(c.fixstim.prms.X);
@@ -386,7 +398,7 @@ c.eye.doTrackerSetupEachBlock = true; %KY disabled
 % c.setPluginOrder('mov','blank','fix','tar','fWindow','sWindow'); %KY
 
 c.subject = args.subject; %params.subj; %'NP';
-
+c.setPluginOrder('keypress','patchContour', 'afterStim');
 c.run(myBlk{1}); %cf. KY c.run(myBlk,'nrRepeats',500);
 
 %% return to original neurostim branch
