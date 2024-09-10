@@ -87,13 +87,13 @@ p.addParameter('speed',11, @(x) validateattributes(x,{'numeric'},{'scalar','none
 p.addParameter('radius',15, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
 p.addParameter('SOA', 900, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %stimulus onset after the end of fixation
 
-%p.addParameter('fixRequired',false,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
+p.addParameter('fixRequired',false,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 
 p.parse(subject,varargin{:});
 args = p.Results;
 
 %% fixed parameters
-radius_init = Inf;%5;%2;%initial fixation radius[deg] value from OcuFol and cueSaccade
+radius_init = 5;%2;%initial fixation radius[deg] value from OcuFol and cueSaccade
 fixDuration = 300; % [ms] minimum duration of fixation to initiate patch stimuli
 fixationDeadline = 5000; %[ms] maximum time to initiate a trial 
 iti = 1000; %[ms] inter trial interval
@@ -248,8 +248,14 @@ k.required = false; %   setting false means that even if this behavior is not su
 
 %Maintain gaze on the fixation (loose) until the trial end
 g = behaviors.fixate(c,'fixbhv');
-g.addProperty('radius_init',radius_init);
-g.addProperty('radius',Inf);%args.radius);
+if ~args.fixRequired
+    g.addProperty('radius_init',radius_init);
+    g.addProperty('radius',args.radius);
+else
+    g.addProperty('radius_init', Inf);
+    g.addProperty('radius',Inf);
+end
+
 g.from = fixationDeadline; % If fixation has not started at this time, move to the next trial
 g.to = '@patch2.off'; %'@traj.off'; % stop tracking when trajectory ends
 g.X = 0; %'@traj.X';
