@@ -388,7 +388,9 @@ c.eye.doTrackerSetupEachBlock = true; %KY disabled
 
 %% Run the experiment.
 % c.eye.clbMatrix = marmolab.loadCal(args.subject); %KY
-c.setPluginOrder('eye','fixbhv','fixstim','patch1','keypress','patchContour', 'patch2','afterStim');
+pluginNames = {c.plugins.name};
+jitterIdx = find(contains(pluginNames,'jitter'));
+c.setPluginOrder({'eye', pluginNames{jitterIdx},'fixbhv','fixstim','patch1','keypress','patchContour', 'patch2','afterStim'});
 
 c.subject = args.subject; %params.subj; %'NP';
 c.run(myBlk{1}); %cf. KY c.run(myBlk,'nrRepeats',500);
