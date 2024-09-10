@@ -59,6 +59,15 @@ function nystagmusRivalry(subject,varargin)
 %
 %
 
+%% checkout my neurostim branch
+nrDirectory = fileparts(mfilename('fullpath'));
+nsDirectory = strrep(nrDirectory,'NR','neurostim');
+originalHash = marmolab.getGitHash(nsDirectory);
+cd(nsDirectory);
+[~, cmdOutput] = system(sprintf('git show-ref superposition-binocular'));
+myHash = cmdOutput(1:40); %myHash = '141539c45b2263844e1e72ed9a4677b3cd19159f';
+system(sprintf('git checkout %s', myHash));
+cd(nrDirectory);
 
 %% PARAMETER DEFINITIONS
 
@@ -352,19 +361,25 @@ myDesign.fac2.patch1.redFirst = [0 1]; %whether to start with red or blue
 myDesign.fac3.patch1.conditionSwitch = args.conditionSwitch;
 
 myDesign.retry = 'RANDOM'; %'IMMEDIATE' or 'IGNORE';
-myDesign.maxRetry = 4;%10;  % Each condition will be retried up to this many times.
+myDesign.maxRetry = 1;%10;  % Each condition will be retried up to this many times.
 
 a=1;
 myBlk{a} = block('myBlock',myDesign);
 myBlk{a}.nrRepeats = args.nRepPerCond; %params.nRepPerCond; %nRepeatsPerBlock;
 
-c.eye.doTrackerSetupEachBlock = true; %KY disabled
+c.eye.doTrackerSetupEachBlock = false; %KY disabled
 
 %% Run the experiment.
-% c.eye.clbMatrix = marmolab.loadCal(args.subject); %KY
+
 % c.setPluginOrder('mov','blank','fix','tar','fWindow','sWindow'); %KY
 
 c.subject = args.subject; %params.subj; %'NP';
+
+if ~strcmp(c.subject, 'test')
+    % load and set eye tracker calibration matrix...
+    c.eye.clbMatrix = marmolab.loadCal(c.subject);
+end
+
 c.run(myBlk{1}); %cf. KY c.run(myBlk,'nrRepeats',500);
 
 
