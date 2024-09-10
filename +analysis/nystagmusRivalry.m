@@ -1,4 +1,4 @@
-classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
+classdef nystagmusRivalry < marmodata.mdbase % vgsaccade.vgsaccade
     % base class for analysis of the ocular following paradigm with motion
     % cloud stim
 
@@ -33,9 +33,11 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
         tDur; %duration of patch1+patch2 [ms]
         conditionSwitchList; %list of stimulus conditions 0: FS, 1: PA, 2: congruent
         conditionSwitch; %condition swith of each trial
-       SOA; %time difference between patches 1 and 2 [ms]
+        SOA; %time difference between patches 1 and 2 [ms]
 
+        % reward
         rewardVol;
+        rewardTime;
 
         % stimulus timing of each trial
         patch1Start; %onset time of 1st patch startTime [ms]
@@ -56,7 +58,8 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
     end
 
     methods  (Access = public)
-        function d = NR(varargin)
+        function d = nystagmusRivalry(varargin)
+            rmpath(genpath('/home/daisuke/Documents/git/chronux_2_11/'));
             fprintf(1,'@NR.NR(): nargin = %i.\n', nargin);
             d@marmodata.mdbase(varargin{:}); % base class constructor
             d.redFirst = getRedFirst(d);
@@ -74,6 +77,7 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             d.patchSpeed = getPatchSpeed(d);
             d.tDur = getTDur(d);
             d.rewardVol = getRewardVol(d);
+            d.rewardTime = getRewardTime(d);
             d.conditionSwitch = getConditionSwitch(d);
             d.conditionSwitchList = getConditionSwitchList(d);
             d.SOA = getSOA(d);
@@ -91,15 +95,20 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
         function tDur = getTDur(d)
             tDur = d.meta.cic.tDur('time',Inf,'trial',1).data;
         end
-        
+
         function fixDuration = getFixDuration(d)
             % fixDuration = d.meta.cic.fixDuration('time',Inf,'trial',1).data;
-            fixDuration = d.meta.fixstim.fixDuration('time',Inf).data;
+            try
+                fixDuration = d.meta.fixstim.fixDuration('time',Inf).data * ones(d.numTrials,1);
+            catch err
+                fixDuration = d.meta.cic.fixDuration('time',Inf).data;
+            end
         end
+
         % function nRepPerCond = getNRepPerCond(d)
         %     nRepPerCond = d.meta.cic.nRepPerCond('time',Inf,'trial',1).data;
         % end
-        
+
         function rewardVol = getRewardVol(d)
             rewardVol = d.meta.cic.rewardVol('time',Inf,'trial',1).data;
         end
@@ -107,23 +116,23 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
         function patch1Phase = getPatch1Phase(d)
             patch1Phase = d.meta.patch1.phase('time',Inf).data;
         end
-        
+
         %function patch2Phase = getPatch2Phase(d)
-            %FIXME: phase is fixed at the start of a trial. spatialphase is inaccessible
-            % patch2Phase = nan(d.numTrials,1);
-            % for itr = d.numTrials
-            %     patch2Phase(itr) = d.meta.patch2.phase('time',d.patch2Start(itr)).data;
-            % end
+        %FIXME: phase is fixed at the start of a trial. spatialphase is inaccessible
+        % patch2Phase = nan(d.numTrials,1);
+        % for itr = d.numTrials
+        %     patch2Phase(itr) = d.meta.patch2.phase('time',d.patch2Start(itr)).data;
+        % end
         %end
 
         function conditionSwitchList = getConditionSwitchList(d)
             conditionSwitchList = d.meta.cic.conditionSwitch('time',Inf,'trial',1).data;
         end
-        
+
         function conditionSwitch = getConditionSwitch(d)
             conditionSwitch = d.meta.patch1.conditionSwitch('time',Inf).data;
         end
-        
+
         function SOA = getSOA(d)
             SOA = d.meta.cic.SOA('time',Inf,'trial',1).data;
         end
@@ -222,7 +231,7 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             for itr = 1:d.numTrials
                 keyPressTime{itr} = 1e3*(time(trial == itr) - t0(itr));
                 if isempty( keyPressTime{itr})
-                     keyPressTime{itr} = NaN;
+                    keyPressTime{itr} = NaN;
                 end
             end
         end
@@ -260,9 +269,9 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
 
             [~,~,vel_patchDir, avgGain_patchDir, avgAngdiff] = d.getSwitchTime;
 
-            tmargin = d.fixDuration;
 
             for itr = 1:d.numTrials
+                tmargin = d.fixDuration(itr);
                 tidx = find((1e3*d.eye(itr).t > d.patch1Start(itr)-tmargin) & (1e3*d.eye(itr).t < d.patch2Stop(itr) + tmargin));%max(d.eye(itr).t)))
                 if isempty(tidx); continue; end;
 
@@ -290,7 +299,8 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
         end
 
 
-        function [switchTimes, switchTime1st, vel_patchDir, avgGain_patchDir, avgAngdiff] = getSwitchTime(d)
+        function [switchTimes, switchTime1st, vel_patchDir, avgGain_patchDir, avgAngdiff] = ...
+                getSwitchTime(d)
             switchTimes = cell(d.numTrials, 1); %ms %all detected movement switches during a trial
             switchTime1st = NaN(d.numTrials,1); %ms %earliest switch to 2nd patch
             vel_patchDir = cell(d.numTrials, 1); % deg/s
@@ -298,43 +308,9 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             avgAngdiff = nan(d.numTrials, 2); %[deg]
             for itr = 1:d.numTrials
 
-             tmargin = d.fixDuration;%ms
-              tidx = find((1e3*d.eye(itr).t > d.patch1Start(itr) - tmargin) & (1e3*d.eye(itr).t < d.patch2Stop(itr) + tmargin));%max(d.eye(itr).t)));
-            if isempty(tidx); continue; end;
+                [t_r, vx_rf, vy_rf] = getEyeVelocity(d, itr);
+                if isempty(t_r); continue; end
 
-                t = 1e3*d.eye(itr).t(tidx); %ms
-
-                for ii = 1:2
-                    switch ii
-                        case 1
-                            x = d.eye_rm(itr).x(tidx);
-                            signal = x;
-                        case 2
-                            y = d.eye_rm(itr).y(tidx);
-                            signal = y;
-                    end
-
-                    okIdx = find(~isnan(signal));
-                    if isempty(okIdx)
-                        continue;
-                    end
-                    signal = interp1(okIdx, signal(okIdx), 1:numel(signal), 'nearest','extrap')'; %extrapolate r to remove NaNs
-
-                    signal_f = analysis.src.lowpassFilter(signal, 1e-3*t, d.cutoffFreq);
-
-                    t_r = t(1):1e3*1/d.fs_r:t(end);
-                    signal_rf = interp1(t, signal_f,t_r)'; %filtered and resampled
-                    switch ii
-                        case 1
-                            x_f = signal_f; %filtered distance from fixation cross
-                            x_rf = signal_rf; %resampled
-                            vx_rf = gradient(x_rf, 1/d.fs_r);
-                        case 2
-                            y_f = signal_f; %filtered distance from fixation cross
-                            y_rf = signal_rf; %resampled
-                            vy_rf = gradient(y_rf, 1/d.fs_r);
-                    end
-                end
                 theta = atan2(vy_rf, vx_rf);
                 vel_patchDir{itr} = sqrt(vx_rf.^2+vy_rf.^2) .* cos(theta - pi/180*d.patch1Dir(itr));
                 patch1Tidx = find((t_r>d.patch1Start(itr)) & (t_r<d.patch2Start(itr)));
@@ -363,7 +339,7 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
                     thisIdx = find( (vel_patchDir{itr}(peakTidx-d.dt_ba*d.fs_r)'>0) .* (vel_patchDir{itr}(peakTidx+d.dt_ba*d.fs_r)'<0) ...
                         .* (t_r(peakTidx)>d.patch2Start(itr)) .* (t_r(peakTidx)<d.patch2Stop(itr)));
                     if ~isempty(thisIdx)
-                        switchTime1st(itr) = t_r(min(peakTidx(thisIdx))); 
+                        switchTime1st(itr) = t_r(min(peakTidx(thisIdx)));
                     end
                 end
             end
@@ -392,45 +368,47 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
         %% behavioural stats
         function f = statEyeSwitch(d)
             [~, switchTime1st] = d.getSwitchTime;
-           
+
             %switch rate
             disp('#trials with eye switch after 2nd patch:');
-           for icond = d.conditionSwitchList
-               switch icond
-                   case 0
-                       condName = 'flash suppression';
-                   case 1
-                       condName = 'physical alteration';
-                   case 2
-                       condName = 'congruent';
-               end
-               trials = find(d.conditionSwitch == icond & d.complete);
-               numAllTrials = numel(trials);
-               numEyeSwitchTrials = sum(~isnan(switchTime1st(trials)));
-               fprintf('%s: %d/%d trials (%.2f%%)\n', condName, numEyeSwitchTrials, numAllTrials, 100*numEyeSwitchTrials/numAllTrials);
-           end
+            for icond = d.conditionSwitchList
+                switch icond
+                    case 0
+                        condName = 'flash suppression';
+                    case 1
+                        condName = 'physical alteration';
+                    case 2
+                        condName = 'congruent';
+                end
+                trials = find(d.conditionSwitch == icond & d.complete);
+                numAllTrials = numel(trials);
+                numEyeSwitchTrials = sum(~isnan(switchTime1st(trials)));
+                fprintf('%s: %d/%d trials (%.2f%%)\n', condName, numEyeSwitchTrials, numAllTrials, 100*numEyeSwitchTrials/numAllTrials);
+            end
 
 
-           %latency
-           latencyFS = switchTime1st(d.conditionSwitch==0.*d.complete) - d.patch2Start(d.conditionSwitch==0.*d.complete);
-           latencyPA = switchTime1st(d.conditionSwitch==1.*d.complete) - d.patch2Start(d.conditionSwitch==1.*d.complete);
-           fprintf('mean eye switch latency across trials in FS: %.1f, PA: %.1f [ms]\n', nanmean(latencyFS), nanmean(latencyPA));
+            %latency
+            latencyFS = switchTime1st(d.conditionSwitch==0.*d.complete) - d.patch2Start(d.conditionSwitch==0.*d.complete);
+            latencyPA = switchTime1st(d.conditionSwitch==1.*d.complete) - d.patch2Start(d.conditionSwitch==1.*d.complete);
+            fprintf('mean eye switch latency across trials in FS: %.1f, PA: %.1f [ms]\n', nanmean(latencyFS), nanmean(latencyPA));
 
-           f=figure;
-           histogram(latencyFS, 20);
-           hold on
-           histogram(latencyPA, 20);
-           grid on
-           vline(nanmean(latencyFS),gca,[],'b')
-           vline(nanmean(latencyPA),gca,[],'r')
-           legend('FS','PA')
-           xlabel('eye switch latency [ms]')
-           ylabel('#trials')
+            f=figure;
+            histogram(latencyFS, 20);
+            hold on
+            histogram(latencyPA, 20);
+            grid on
+            vline(nanmean(latencyFS),gca,[],'b')
+            vline(nanmean(latencyPA),gca,[],'r')
+            legend('FS','PA')
+            xlabel('eye switch latency [ms]')
+            ylabel('#trials')
 
         end
 
         %% functions for visualization
         function fig = plotSwitchByPatchDir(d)
+            %show rate of eye switch for each direction
+
             [~, switchTime1st] = d.getSwitchTime;
             % switched = cellfun(@(x)~isnan(x), switchTimes);
             switched = ~isnan(switchTime1st);
@@ -458,12 +436,94 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             ax(2)=subplot(212);
             plot(d.patchDirList, nSwitchedTrials(:,1,2)./nCompleteTrials(:,1,2), '-*','Color','b'); hold on
             plot(d.patchDirList, nSwitchedTrials(:,2,2)./nCompleteTrials(:,2,2), '-o','Color','r');
-            title('congruent'); 
-          
+            title('congruent');
+
             axis padded;
             linkaxes(ax(:));
             legend('blueFirst','redFirst');
             xlabel('stimulus direction [deg]'); ylabel('eye switch rate');
+        end
+
+        function fig = plotAvgTrialEye(d)
+            %show eye position averaged across trials per direction
+
+            t_a = 0:1e3/d.fs_r:d.tDur; %time from patch1 onset [ms]
+            lineColors = cool(3);%[0 0 1; 0 1 0; 1 0 0];
+            fig = figure('position',[0 0 1800 900]);
+
+            %% show eye position avg across trials per direction
+            x_rf_avg = zeros(numel(t_a),numel(d.patchDirList),3);
+            y_rf_avg = zeros(numel(t_a),numel(d.patchDirList),3);
+            for icond = 1:3
+                thisCond = icond-1;
+                thisColor = lineColors(icond,:);
+                for idir = 1:numel(d.patchDirList)
+                    theseTrials = intersect(find(d.conditionSwitch == thisCond), find(d.patch1Dir == d.patchDirList(idir)));
+
+                    x_rf_all = []; y_rf_all = [];
+                    for jtr = 1:numel(theseTrials)
+                        itr = theseTrials(jtr);
+                        
+                        [t_r, x_rf, y_rf] = getEyePosition_filtered(d, itr);
+
+                        if ~isempty(t_r)
+                            x_rf_all = [x_rf_all; interp1(t_r - d.patch1Start(itr), x_rf, t_a)];
+                            y_rf_all = [y_rf_all; interp1(t_r - d.patch1Start(itr), y_rf, t_a)];
+                        end
+                    end
+                    if ~isempty(x_rf_all)
+                        x_rf_avg(:, idir, icond) = mean(x_rf_all, 1);
+                        y_rf_avg(:, idir, icond) = mean(y_rf_all, 1);
+                    end
+
+                    nRepeats(idir, icond) = size(x_rf_all, 1);
+
+                    subplot(3,4,idir); 
+                    polarplot(linspace(0,2*pi,50), d.radius*ones(50,1), 'color','k'); hold on;
+                    polarplot([0 d.patchDirList(idir)*pi/180],[0 d.radius],'color','k')
+                    polarplot(squeeze(x_rf_avg(:,idir,icond)) + 1i*squeeze(y_rf_avg(:,idir,icond)),'Color', thisColor);
+                    hold on;
+                    %ylim([-d.radius, d.radius]); xlim([-d.radius, d.radius]);
+                    if icond==3
+                        title(sprintf('FS(c):%d, PR(p):%d, congruent(m):%d', nRepeats(idir, 1), nRepeats(idir, 2), nRepeats(idir, 3)));
+                    end
+                end
+            end
+            
+            
+            %% show eye velocity along stim dir avg across trials per color
+            vel_patchDir_avg = nan(numel(t_a), 2);
+            vel_patchDir_ste = nan(numel(t_a), 2);
+            for icolor = 1:2
+                redFirst = 2-icolor;
+                theseTrials = find(d.redFirst == redFirst);
+                vel_patchDir_all = [];
+                for jtr = 1:numel(theseTrials)
+                    itr = theseTrials(jtr);
+                    [t_r, vx_rf, vy_rf] = getEyeVelocity(d, itr);
+                    if ~isempty(t_r)
+                        theta = atan2(vy_rf, vx_rf);
+                        vel_patchDir = sqrt(vx_rf.^2+vy_rf.^2) .* cos(theta - pi/180*d.patch1Dir(itr));
+                        vel_patchDir_align =  interp1(t_r - d.patch1Start(itr), vel_patchDir, t_a);
+                        vel_patchDir_all = [vel_patchDir_all; vel_patchDir_align];
+                    end
+                end
+                if ~isempty(vel_patchDir_all)
+                    nRepeats(icolor) = size(vel_patchDir_all, 1);
+                    vel_patchDir_avg(:, icolor) = nanmean(vel_patchDir_all, 1);
+                    vel_patchDir_ste(:, icolor) = 1/sqrt(nRepeats(icolor))*nanstd(vel_patchDir_all, [], 1);
+                end
+
+            end
+
+            subplot(3,2,[5 6]);
+            analysis.src.shadedErrorBar(t_a, vel_patchDir_avg(:,1),vel_patchDir_ste(:,1),'lineProps','r');hold on;
+            analysis.src.shadedErrorBar(t_a, vel_patchDir_avg(:,2),vel_patchDir_ste(:,2),'lineProps','b');
+            hline; vline(d.SOA);
+            xlabel('time from patch1 onset [ms]');
+            ylabel('velocity projected to patch1 axis');
+            legend(sprintf('redFirst: %d', nRepeats(1)), sprintf('blueFirst: %d', nRepeats(2)))
+
         end
 
         function fig = plotSingleTrialEye(d,itr)
@@ -473,10 +533,10 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             % eye velocity along the 1st patch direction
 
             winSize = 5;
-            
+
             [switchTimes, switchTime1st, vel_patchDir] = d.getSwitchTime;
-            
-           tmargin = d.fixDuration;%ms
+
+            tmargin = d.fixDuration(itr);%ms
             tidx = find((1e3*d.eye(itr).t > d.patch1Start(itr)-tmargin) & (1e3*d.eye(itr).t < d.patch2Stop(itr) + tmargin));%max(d.eye(itr).t)));
             if isempty(tidx); return; end
 
@@ -589,6 +649,144 @@ classdef NR < marmodata.mdbase % vgsaccade.vgsaccade
             disp(['median duration of patch2 in FS/congruent: ' num2str(median(patch2Dur))]);
             disp(['median dropped frames in FS/congruent: ' num2str(sum(ismember(fd.trial, theseTrials))/numel(theseTrials))]);
 
+        end
+
+        function [t_r, x_rf, y_rf] = getEyePosition_filtered(d, itr)
+
+            tmargin = d.fixDuration(itr);%ms
+            tidx = find((1e3*d.eye(itr).t > d.patch1Start(itr) - tmargin) & ...
+                (1e3*d.eye(itr).t < d.patch2Stop(itr) + tmargin));%max(d.eye(itr).t)));
+
+            if isempty(tidx);
+                x_rf = [];
+                y_rf= [];
+                t_r = [];
+                return;
+            end
+
+            t = 1e3*d.eye(itr).t(tidx); %ms
+
+            for ii = 1:2
+                switch ii
+                    case 1
+                        x = d.eye_rm(itr).x(tidx);
+                        signal = x;
+                    case 2
+                        y = d.eye_rm(itr).y(tidx);
+                        signal = y;
+                end
+
+                okIdx = find(~isnan(signal));
+                if isempty(okIdx)
+                    continue;
+                end
+                signal = interp1(okIdx, signal(okIdx), 1:numel(signal), 'nearest','extrap')'; %extrapolate r to remove NaNs
+
+                signal_f = analysis.src.lowpassFilter(signal, 1e-3*t, d.cutoffFreq);
+
+                t_r = t(1):1e3*1/d.fs_r:t(end);
+                signal_rf = interp1(t, signal_f,t_r)'; %filtered and resampled
+                switch ii
+                    case 1
+                        x_f = signal_f; %filtered distance from fixation cross
+                        x_rf = signal_rf; %resampled
+                    case 2
+                        y_f = signal_f; %filtered distance from fixation cross
+                        y_rf = signal_rf; %resampled
+                end
+            end
+        end
+
+        function [t_r, vx_rf, vy_rf] = getEyeVelocity(d, itr)
+
+            [t_r, x_rf, y_rf] = getEyePosition_filtered(d, itr);
+            vx_rf = gradient(x_rf, 1/d.fs_r);
+            vy_rf = gradient(y_rf, 1/d.fs_r);
+        end
+
+        function rewardTime = getRewardTime(d) %from fitKernel/getRewardTimes
+            %not yet tested
+            rewardTime = nan(d.numTrials,1);
+            try
+                for itr = 1:d.numTrials
+                    [time_d, trialInfo, frame, data] = d.meta.newera.item2delivered('trial',itr);
+                    if ~isempty(time_d)
+                        rewardTime(itr) = time_d(end) - d.meta.cic.firstFrame('trial',itr).time;
+                    else
+                        rewardTime(itr) = nan;
+                    end
+                end
+            end
+        end
+
+          function fig = showEyePos_cat(d)
+            %show eye position within a sequence
+
+            [eyeData_cat, meta_cat] = analysis.src.concatenate_eye(d.eye, d);%d.eye_rm, d);
+
+            fig = figure('position',[0 0 1900 600]);
+            subplot(211);
+            plot(eyeData_cat.t, eyeData_cat.x, 'b', eyeData_cat.t, eyeData_cat.y, 'k');
+         
+            xlim([eyeData_cat.t(1), eyeData_cat.t(end)]);
+            showRange = 1.2*[-d.radius d.radius];
+            ylim(showRange);
+            hline([-d.radius d.radius]);
+            vbox(meta_cat.STARTBLINK, meta_cat.ENDBLINK);
+
+           
+            patchStart_cat = [];
+            patchEnd_cat = [];
+            rewardTimes_cat = [];
+            %patchDir_cat = [];
+            oddFixationTime_cat = [];
+            keyPressTime_cat = [];
+            t_cat = [];
+
+            for itr = 1:d.numTrials
+                if isempty(t_cat)
+                    t0 = d.eye(itr).t(1);
+                elseif ~isempty(d.eye(itr).t)
+                    t0 =  max(t_cat)-d.eye(itr).t(1)+d.eye(itr).dt;
+                end
+                if ~isempty(d.eye(itr).t)
+                    t_cat = cat(1, t_cat, d.eye(itr).t+t0);
+                end
+                t_cat = t_cat(~isnan(t_cat));
+                [t_cat, ix] = unique(t_cat);
+
+                patchStart_cat = [patchStart_cat 1e-3*d.patch1Start(itr) + t0];
+                patchEnd_cat = [patchEnd_cat 1e-3*d.patch2Stop(itr) + t0]; 
+                rewardTimes_cat = [rewardTimes_cat 1e-3*d.rewardTime(itr)+ t0];
+                keyPressTime_cat = [keyPressTime_cat 1e-3*d.keyPressTime{itr}+ t0];
+                %patchDir_cat = [patchDir_cat d.patchDir{itr}];
+            end
+
+            %keypress
+            vline(keyPressTime_cat,gca,'-','r');
+            
+            %reward
+            vline(rewardTimes_cat,gca,'-','g');
+
+            %patch direction
+            %dirColor = [hsv(numel(d.patchDirList)) .2*ones(numel(d.patchDirList),1)];
+            %[~, patchDirIdx] = ismember(patchDir_cat, d.patchDirList);
+            vbox(patchStart_cat, patchEnd_cat, gca, [.5 .5 0 .5]);
+
+            eyeInPatch = sum(sqrt(eyeData_cat.x.^2+eyeData_cat.y.^2) < d.radius)/numel(eyeData_cat.t)*100;
+            title(sprintf('eye within patch: %.1f%%. %d keyResp(red), %d reward(green)', ...
+                eyeInPatch, sum(~isnan(keyPressTime_cat)), sum(~isnan(rewardTimes_cat)) ));
+            xlabel('time[s]'); legend('x','y');
+
+            subplot(212);
+            histogram2(eyeData_cat.x, eyeData_cat.y, showRange(1):1:showRange(2),...
+                showRange(1):1:showRange(2), 'FaceColor','flat','DisplayStyle','tile','ShowEmptyBins','on',...
+                'EdgeColor','none');
+            axis square;
+            hold on;
+            viscircles([0,0], d.radius, 'color','k','LineStyle','--')
+
+            hline(0,gca,'','w'); vline(0,gca,'','w');
         end
 
     end

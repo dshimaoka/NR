@@ -84,9 +84,9 @@ p.KeepUnmatched = true;
 p.addRequired('subject',@(x) validateattributes(x,{'char'},{'nonempty'}));
 p.addParameter('debug',false,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 p.addParameter('tDur',1800,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % trial duration from onset of first patch (ms)
-p.addParameter('nRepPerCond',3,@(x) validateattributes(x,{'numeric'},{'scalar','positive'}));  % number of repeats of each condition
+p.addParameter('nRepPerCond',4,@(x) validateattributes(x,{'numeric'},{'scalar','positive'}));  % number of repeats of each condition
 p.addParameter('rewardVol',0.035,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
-p.addParameter('conditionSwitch', [0 1 2], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'}));
+p.addParameter('conditionSwitch', [1 2], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'}));
 %conditionSwitch = 0: binocular flash suppression
 %conditionSwitch = 1: physical alteration
 %conditionSwitch = 2: congruent direction between two patches
@@ -95,7 +95,7 @@ p.addParameter('conditionSwitch', [0 1 2], @(x) validateattributes(x,{'numeric'}
 p.addParameter('patchType','grating',@(x) validateattributes(x,{'char'},{'nonempty'})); %rdp or grating
 p.addParameter('dir1List',0:45:315, @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
 p.addParameter('speed',11, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
-p.addParameter('radius',15, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
+p.addParameter('radius',10, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
 p.addParameter('SOA', 900, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %stimulus onset after the end of fixation
 
 p.addParameter('fixRequired',true,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
@@ -112,7 +112,7 @@ fixationDeadline = 5000; %[ms] maximum time to initiate a trial
 iti = 500; %[ms] inter trial interval
 
 %luminance correction
-redLuminance = 171/255; %Fraser ... Miller 2023
+redLuminance = 151/255;%171/255; %Fraser ... Miller 2023
 %redLuminance = 0.33; %DS office
 
 %RDP
@@ -121,6 +121,9 @@ nrDots = 200; %number of dots
 
 %grating
 frequency = 0.5;%spatial frequency in cycles per visual angle in degree (not pixel) %Kapoor 2022
+
+%patch contour
+contourWidth  = 0.5; %[deg]
 
 import neurostim.*
 commandwindow;
@@ -256,7 +259,7 @@ end
 
 %pc = stimuli.fixation(c,'patchCountour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
 pc = stimuli.arc(c,'patchCountour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
-pc.linewidth= 1;               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
+pc.linewidth= contourWidth;               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
 pc.arcAngle = 360;
 pc.outerRad = args.radius+pc.linewidth;
 pc.color = [1 1 1];

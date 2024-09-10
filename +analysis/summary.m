@@ -1,4 +1,4 @@
-function d = NRsanityCheck(file)
+function d = summary(file)
 
  set(0,'DefaultFigureVisible','off');
 % if nargin < 2
@@ -8,7 +8,7 @@ function d = NRsanityCheck(file)
 [saveDir, thisFile] = fileparts(file);
 
 % d = marmodata.mdbase('path',params.paths,'file',params.files,'loadArgs',{'loadEye',true});
-d = analysis.NR('file',file,'loadArgs',{'loadEye',true}); %loads eye data into 'd' 
+d = analysis.nystagmusRivalry('file',file,'loadArgs',{'loadEye',true}); %loads eye data into 'd' 
 disp('data loaded!') 
 
 disp([d.patchType ': ' d.file{:}]);
@@ -29,17 +29,21 @@ d.eyeKeyConsistency;
 d.checkDroppedFrames;
 
 %% eye trace per trial
+fig = d.plotAvgTrialEye;
+analysis.src.screen2png(fullfile(saveDir, ['eyeAvg_' thisFile  '.png']), fig);
+
+%% eye trace per trial
 disp('Plotting single trial eye traces');
 for itr = 1:d.numTrials
     d.plotSingleTrialEye(itr);
-    screen2png(fullfile(saveDir, ['eyeSummary_' thisFile '_tr' num2str(itr) '.png']));
+    analysis.src.screen2png(fullfile(saveDir, ['eye_' thisFile '_tr' num2str(itr) '.png']));
     close;
 end
 disp('done');
 
 %% eye switch by stimulus direction
 d.plotSwitchByPatchDir;
-screen2png(fullfile(saveDir,['nSwitchedTrials_' thisFile '.png']));
+analysis.src.screen2png(fullfile(saveDir,['nSwitchedTrials_' thisFile '.png']));
 close
 
  set(0,'DefaultFigureVisible','on');
