@@ -388,10 +388,9 @@ c.eye.doTrackerSetupEachBlock = true; %KY disabled
 
 %% Run the experiment.
 % c.eye.clbMatrix = marmolab.loadCal(args.subject); %KY
-% c.setPluginOrder('mov','blank','fix','tar','fWindow','sWindow'); %KY
+c.setPluginOrder('eye','fixbhv','fixstim','patch1','keypress','patchContour', 'patch2','afterStim');
 
 c.subject = args.subject; %params.subj; %'NP';
-c.setPluginOrder('eye','fixbhv','fixstim','patch1','keypress','patchContour', 'patch2','afterStim');
 c.run(myBlk{1}); %cf. KY c.run(myBlk,'nrRepeats',500);
 
 %% return to original neurostim branch
