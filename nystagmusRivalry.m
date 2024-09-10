@@ -293,23 +293,23 @@ g.required = args.fixRequired; % This is a required behavior. Any trial in which
 g.failEndsTrial = args.fixRequired;
 g.successEndsTrial = false; %cf. false in OcuFol
 
-% it = behaviors.fixate(c,'afterStim');
-% it.addProperty('afterStimDur',args.afterStimDur);
-% it.from = '@patch2.off';
-% it.tolerance = Inf; % What time should the stimulus come on? (all times are in ms)
-% it.to = '@patch2.off + afterStim.afterStimDur';
-% it.X = 0;
-% it.Y = 0;
-% it.required = true;
-% it.failEndsTrial = true;
-% it.successEndsTrial = true; %cf. false in OcuFol
-it = stimuli.convPoly(c,'afterStim'); %from OcuFolMC/run.m. convpoly is less demanding than behaviors.fixate?
+it = behaviors.fixate(c,'afterStim');
 it.addProperty('afterStimDur',args.afterStimDur);
-it.on = '@patch2.off';
-it.duration = args.afterStimDur;
-it.radius = 50;
-it.filled = true;
-it.color = c.screen.color.background;
+it.from = '@patch2.off';
+it.tolerance = Inf; % What time should the stimulus come on? (all times are in ms)
+it.to = '@patch2.off + afterStim.afterStimDur';
+it.X = 0;
+it.Y = 0;
+it.required = true;
+it.failEndsTrial = true;
+it.successEndsTrial = true; %cf. false in OcuFol
+% it = stimuli.convPoly(c,'afterStim'); %from OcuFolMC/run.m. convpoly is less demanding than behaviors.fixate?
+% it.addProperty('afterStimDur',args.afterStimDur);
+% it.on = '@patch2.off';
+% it.duration = args.afterStimDur;
+% it.radius = 50;
+% it.filled = true;
+% it.color = c.screen.color.background;
 
 %% Turn off logging
 stopLog(c.fixstim.prms.X);
@@ -339,11 +339,11 @@ stopLog(c.keypress.prms.from);
 stopLog(c.fixbhv.prms.event);
 stopLog(c.fixbhv.prms.invert);
 stopLog(c.fixbhv.prms.allowBlinks);
-% stopLog(c.afterStim.prms.event);
-% stopLog(c.afterStim.prms.state);
-% stopLog(c.afterStim.prms.from);
-% stopLog(c.afterStim.prms.allowBlinks);
-% stopLog(c.afterStim.prms.to);
+stopLog(c.afterStim.prms.event);
+stopLog(c.afterStim.prms.state);
+stopLog(c.afterStim.prms.from);
+stopLog(c.afterStim.prms.allowBlinks);
+stopLog(c.afterStim.prms.to);
 stopLog(c.fixstim.prms.rsvpIsi);
 stopLog(c.fixstim.prms.disabled);
 stopLog(c.fixstim.prms.duration);
@@ -397,7 +397,7 @@ c.eye.doTrackerSetupEachBlock = true; %KY disabled
 % c.setPluginOrder('mov','blank','fix','tar','fWindow','sWindow'); %KY
 
 c.subject = args.subject; %params.subj; %'NP';
-c.setPluginOrder('keypress','patchContour', 'afterStim');
+c.setPluginOrder('eye','fixbhv','fixstim','patch1','keypress','patchContour', 'patch2','afterStim');
 c.run(myBlk{1}); %cf. KY c.run(myBlk,'nrRepeats',500);
 
 %% return to original neurostim branch
