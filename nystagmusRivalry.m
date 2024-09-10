@@ -305,8 +305,8 @@ g.successEndsTrial = false; %cf. false in OcuFol
 % it.successEndsTrial = true; %cf. false in OcuFol
 it = stimuli.convPoly(c,'afterStim'); %from OcuFolMC/run.m. convpoly is less demanding than behaviors.fixate?
 it.addProperty('afterStimDur',args.afterStimDur);
-it.from = '@patch2.off';
-it.to = '@patch2.off + afterStim.afterStimDur';
+it.on = '@patch2.off';
+it.duration = afterStim.afterStimDur;
 it.radius = 50;
 it.filled = true;
 it.color = c.screen.color.background;
