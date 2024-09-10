@@ -73,7 +73,7 @@ p.KeepUnmatched = true;
 p.addRequired('subject',@(x) validateattributes(x,{'char'},{'nonempty'}));
 p.addParameter('debug',false,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 p.addParameter('tDur',1800,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % trial duration from onset of first patch (ms)
-p.addParameter('nRepPerCond',3,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % number of repeats of each condition
+p.addParameter('nRepPerCond',4,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % number of repeats of each condition
 p.addParameter('rewardVol',0.035,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
 p.addParameter('conditionSwitch', [0 1 2], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'}));
 %conditionSwitch = 0: binocular flash suppression
@@ -81,23 +81,25 @@ p.addParameter('conditionSwitch', [0 1 2], @(x) validateattributes(x,{'numeric'}
 %conditionSwitch = 2: congruent direction between two patches
 
 %patch stimuli
-p.addParameter('patchType','rdp',@(x) validateattributes(x,{'char'},{'nonempty'})); %rdp or grating
-p.addParameter('dir1List',[0 45 90 135 180 225 270 315], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
-p.addParameter('speed',6, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
-p.addParameter('radius',4, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
+p.addParameter('patchType','grating',@(x) validateattributes(x,{'char'},{'nonempty'})); %rdp or grating
+p.addParameter('dir1List',[0 90 180 270], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
+p.addParameter('speed',11, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
+p.addParameter('radius',15, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
 p.addParameter('SOA', 900, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %stimulus onset after the end of fixation
+
+%p.addParameter('fixRequired',false,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 
 p.parse(subject,varargin{:});
 args = p.Results;
 
 %% fixed parameters
-radius_init = 2;%initial fixation radius[deg] value from OcuFol and cueSaccade
+radius_init = Inf;%5;%2;%initial fixation radius[deg] value from OcuFol and cueSaccade
 fixDuration = 300; % [ms] minimum duration of fixation to initiate patch stimuli
 fixationDeadline = 5000; %[ms] maximum time to initiate a trial 
 iti = 1000; %[ms] inter trial interval
 
 %luminance correction
-redLuminance = 171/255; %Fraser ... Miller 2023
+redLuminance = 151/255; %Fraser ... Miller 2023
 %redLuminance = 0.33; %DS office
 
 %RDP
@@ -247,7 +249,7 @@ k.required = false; %   setting false means that even if this behavior is not su
 %Maintain gaze on the fixation (loose) until the trial end
 g = behaviors.fixate(c,'fixbhv');
 g.addProperty('radius_init',radius_init);
-g.addProperty('radius',args.radius);
+g.addProperty('radius',Inf);%args.radius);
 g.from = fixationDeadline; % If fixation has not started at this time, move to the next trial
 g.to = '@patch2.off'; %'@traj.off'; % stop tracking when trajectory ends
 g.X = 0; %'@traj.X';
