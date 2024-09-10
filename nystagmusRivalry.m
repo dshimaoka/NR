@@ -248,7 +248,7 @@ k.required = false; %   setting false means that even if this behavior is not su
 
 %Maintain gaze on the fixation (loose) until the trial end
 g = behaviors.fixate(c,'fixbhv');
-if ~args.fixRequired
+if args.fixRequired
     g.addProperty('radius_init',radius_init);
     g.addProperty('radius',args.radius);
 else
