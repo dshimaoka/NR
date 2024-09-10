@@ -259,7 +259,7 @@ end
 
 %pc = stimuli.fixation(c,'patchCountour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
 pc = stimuli.arc(c,'patchCountour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
-pc.linewidth= contourWidth;               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
+pc.linewidth = 10;%contourWidth;               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
 pc.filled = true;
 pc.arcAngle = 360;
 pc.outerRad = args.radius+pc.linewidth;
