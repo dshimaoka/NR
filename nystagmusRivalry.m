@@ -310,7 +310,7 @@ it.duration = args.afterStimDur;
 it.radius = 50;
 it.filled = true;
 it.color = c.screen.color.background;
-
+it.successEndsTrial = true;
 
 %% Turn off logging
 stopLog(c.fixstim.prms.X);
