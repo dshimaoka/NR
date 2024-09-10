@@ -59,6 +59,7 @@ function nystagmusRivalry(subject,varargin)
 %
 %
 
+
 %% PARAMETER DEFINITIONS
 
 if ~exist('subject','var')
@@ -99,7 +100,7 @@ fixationDeadline = 5000; %[ms] maximum time to initiate a trial
 iti = 1000; %[ms] inter trial interval
 
 %luminance correction
-redLuminance = 151/255; %Fraser ... Miller 2023
+redLuminance = 128/255; %Fraser ... Miller 2023
 %redLuminance = 0.33; %DS office
 
 %RDP
@@ -113,10 +114,11 @@ import neurostim.*
 commandwindow;
 
 % total trial number
-% nTotTrials = args.nRepPerCond * numel(args.dir1List) * 2 * numel(args.conditionSwitch) % direction x (congruent / incongruent) * (red/blue)
+nTotTrials = args.nRepPerCond * numel(args.dir1List) * 2 * numel(args.conditionSwitch); % direction x (congruent / incongruent) * (red/blue)
 
 % estimated experiment duration [s]
-% nTotTrials x (args.tDur + ITI + fixDuration) * 1e-3
+nTotTime = nTotTrials * (args.tDur  + iti + fixDuration) * 1e-3;
+disp(['Expected duration ' num2str(nTotTime) '[s]']);
 
 %% ========= Specify rig configuration  =========
 
