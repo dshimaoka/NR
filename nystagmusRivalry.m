@@ -123,7 +123,7 @@ nrDots = 200; %number of dots
 frequency = 0.5;%spatial frequency in cycles per visual angle in degree (not pixel) %Kapoor 2022
 
 %patch contour
-contourWidth  = 2;%0.5; %[deg]
+contourWidth  = 0.5; %[deg]
 
 import neurostim.*
 commandwindow;
@@ -259,7 +259,7 @@ end
 
 %pc = stimuli.fixation(c,'patchCountour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
 pc = stimuli.arc(c,'patchCountour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
-pc.linewidth = .1;%contourWidth;               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
+pc.linewidth = contourWidth;               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
 pc.arcAngle = 360;
 pc.outerRad = args.radius+pc.linewidth;
 pc.color = [1 1 1];
