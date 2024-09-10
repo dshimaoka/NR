@@ -106,7 +106,7 @@ p.parse(subject,varargin{:});
 args = p.Results;
 
 %% fixed parameters
-radius_init = 2;%initial fixation radius[deg] value from OcuFol and cueSaccade
+radius_init = 2;%initial fixation radius [deg] value from OcuFol and cueSaccade
 fixDurationRange = {300, 500}; % [ms] minimum duration of fixation to initiate patch stimuli
 fixationDeadline = 5000; %[ms] maximum time to initiate a trial
 iti = 500; %[ms] inter trial interval
@@ -116,8 +116,8 @@ redLuminance = 151/255;%171/255; %Fraser ... Miller 2023
 %redLuminance = 0.33; %DS office
 
 %RDP
-dotSize = 4;%5; %dot size [pix]
-nrDots = 200; %number of dots
+%dotSize = 4;%5; %dot size [pix]
+%nrDots = 200; %number of dots
 
 %grating
 frequency = 0.5;%spatial frequency in cycles per visual angle in degree (not pixel) %Kapoor 2022
@@ -129,10 +129,11 @@ import neurostim.*
 commandwindow;
 
 % total trial number
-% nTotTrials = args.nRepPerCond * numel(args.dir1List) * 2 * numel(args.conditionSwitch) % direction x (congruent / incongruent) * (red/blue)
+nTotTrials = args.nRepPerCond * numel(args.dir1List) * 2 * numel(args.conditionSwitch); % direction x (congruent / incongruent) * (red/blue)
 
 % estimated experiment duration [s]
-% nTotTrials x (args.tDur + afterStimDur + iti + fixDuration) * 1e-3
+nTotTime = nTotTrials + (args.tDur + args.afterStimDur + iti + mean(cell2mat(fixDurationRange))) * 1e-3;
+disp(['Expected duration ' num2str(nTotTime) '[s]']);
 
 %% ========= Specify rig configuration  =========
 
@@ -296,20 +297,13 @@ g.successEndsTrial = false; %cf. false in OcuFol
 it = behaviors.fixate(c,'afterStim');
 it.addProperty('afterStimDur',args.afterStimDur);
 it.from = '@patch2.off';
-it.tolerance = Inf; % What time should the stimulus come on? (all times are in ms)
+it.tolerance = Inf; 
 it.to = '@patch2.off + afterStim.afterStimDur';
 it.X = 0;
 it.Y = 0;
 it.required = true;
 it.failEndsTrial = true;
-it.successEndsTrial = true; %cf. false in OcuFol
-% it = stimuli.convPoly(c,'afterStim'); %from OcuFolMC/run.m. convpoly is less demanding than behaviors.fixate?
-% it.addProperty('afterStimDur',args.afterStimDur);
-% it.on = '@patch2.off';
-% it.duration = args.afterStimDur;
-% it.radius = 50;
-% it.filled = true;
-% it.color = c.screen.color.background;
+it.successEndsTrial = true; 
 
 %% Turn off logging
 stopLog(c.fixstim.prms.X);
