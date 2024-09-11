@@ -85,7 +85,7 @@ p.addRequired('subject',@(x) validateattributes(x,{'char'},{'nonempty'}));
 p.addParameter('debug',false,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 p.addParameter('tDur',1800,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % trial duration from onset of first patch (ms)
 p.addParameter('nRepPerCond',4,@(x) validateattributes(x,{'numeric'},{'scalar','positive'}));  % number of repeats of each condition
-p.addParameter('rewardVol',0.035,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
+p.addParameter('rewardVol',0.08,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
 p.addParameter('conditionSwitch', [1 2], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'}));
 %conditionSwitch = 0: binocular flash suppression
 %conditionSwitch = 1: physical alteration
@@ -93,12 +93,12 @@ p.addParameter('conditionSwitch', [1 2], @(x) validateattributes(x,{'numeric'},{
 
 %patch stimuli
 p.addParameter('patchType','grating',@(x) validateattributes(x,{'char'},{'nonempty'})); %rdp or grating
-p.addParameter('dir1List',0:45:315, @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
-p.addParameter('speed',11, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
-p.addParameter('radius',10, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
+p.addParameter('dir1List',[0 90 180 270], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
+p.addParameter('speed',22, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
+p.addParameter('radius',14, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
 p.addParameter('SOA', 900, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %stimulus onset after the end of fixation
 
-p.addParameter('fixRequired',true,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
+p.addParameter('fixRequired',false,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 
 p.addParameter('afterStimDur',500,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % blank duration after 2nd patch w eye record(ms)
 
@@ -139,6 +139,7 @@ disp(['Expected duration ' num2str(nTotTime) '[s]']);
 
 %Create a Command and Intelligence Centre object (the central controller for everything). Here a cic is returned with some default settings for this computer, if it is recognized.
 c = marmolab.rigcfg('debug',args.debug, p.Unmatched); % set to false to save githash at start of each experiment!
+c.screen.overlayClut(4,:)=0;
 c.hardware.keyEcho = false;
 c.saveEveryN = 1;
 
