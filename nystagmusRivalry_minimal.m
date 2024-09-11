@@ -291,20 +291,23 @@ g.Y = 0; %'@traj.Y';
 g.tolerance = '@iff(fixbhv.isFixating, fixbhv.radius, fixbhv.radius_init)'; % (deg) allowed eye position error - should be aiming to get this as small as possible
 %FIXME
 
-g.required = args.fixRequired; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
-g.failEndsTrial = args.fixRequired;
-g.successEndsTrial = false; %cf. false in OcuFol
+% g.required = args.fixRequired; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
+% g.failEndsTrial = args.fixRequired;
+% g.successEndsTrial = false; %cf. false in OcuFol
+g.required = true; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
+g.failEndsTrial = true; 
+g.successEndsTrial = true;%; %cf. false in OcuFol
 
-it = behaviors.fixate(c,'afterStim');
-it.addProperty('afterStimDur',args.afterStimDur);
-it.from = '@patch2.off';
-it.tolerance = Inf; 
-it.to = '@patch2.off + afterStim.afterStimDur';
-it.X = 0;
-it.Y = 0;
-it.required = true;
-it.failEndsTrial = true;
-it.successEndsTrial = true; 
+% it = behaviors.fixate(c,'afterStim');
+% it.addProperty('afterStimDur',args.afterStimDur);
+% it.from = '@patch2.off';
+% it.tolerance = Inf; 
+% it.to = '@patch2.off + afterStim.afterStimDur';
+% it.X = 0;
+% it.Y = 0;
+% it.required = true;
+% it.failEndsTrial = true;
+% it.successEndsTrial = true; 
 
 %% Turn off logging
 stopLog(c.fixstim.prms.X);
@@ -334,11 +337,11 @@ stopLog(c.keypress.prms.from);
 stopLog(c.fixbhv.prms.event);
 stopLog(c.fixbhv.prms.invert);
 stopLog(c.fixbhv.prms.allowBlinks);
-stopLog(c.afterStim.prms.event);
-stopLog(c.afterStim.prms.state);
-stopLog(c.afterStim.prms.from);
-stopLog(c.afterStim.prms.allowBlinks);
-stopLog(c.afterStim.prms.to);
+% stopLog(c.afterStim.prms.event);
+% stopLog(c.afterStim.prms.state);
+% stopLog(c.afterStim.prms.from);
+% stopLog(c.afterStim.prms.allowBlinks);
+% stopLog(c.afterStim.prms.to);
 stopLog(c.fixstim.prms.rsvpIsi);
 stopLog(c.fixstim.prms.disabled);
 stopLog(c.fixstim.prms.duration);
@@ -391,15 +394,9 @@ c.eye.doTrackerSetupEachBlock = true; %KY disabled
 % c.eye.clbMatrix = marmolab.loadCal(args.subject); %KY
 pluginNames = {c.plugins.name};
 jitterIdx = find(contains(pluginNames,'jitter'));
-c.setPluginOrder('eye', pluginNames{jitterIdx},'fixbhv','fixstim','patch1','keypress','patchContour', 'patch2','afterStim');
+c.setPluginOrder('eye', pluginNames{jitterIdx},'fixbhv','fixstim','patch1','keypress','patchContour', 'patch2');%,'afterStim');
 
 c.subject = args.subject; %params.subj; %'NP';
-
-if ~strcmp(c.subject, 'test')
-    % load and set eye tracker calibration matrix...
-    c.eye.clbMatrix = marmolab.loadCal(c.subject);
-end
-
 c.run(myBlk{1}); %cf. KY c.run(myBlk,'nrRepeats',500);
 
 %% return to original neurostim branch
