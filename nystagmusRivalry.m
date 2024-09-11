@@ -356,7 +356,7 @@ stopLog(c.fixstim.prms.duration);
 
 if true && ~isempty(c.pluginsByClass('newera'))
     % add liquid reward... newera syringe pump
-    c.newera.add('volume',args.rewardVol,'when','AFTERTRIAL','criterion','@fixbhv.isSuccess');
+    c.newera.add('volume',args.rewardVol,'when','AFTERTRIAL','criterion','@afterStim.isSuccess');
 end
 
 
