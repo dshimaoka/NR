@@ -28,6 +28,10 @@ d.eyeKeyConsistency;
 %% missed frames
 d.checkDroppedFrames;
 
+%% show eye position within a sequence
+fig = showEyePos_cat(d);
+analysis.src.screen2png(fullfile(saveDir, ['eyeCat_' thisFile  '.png']), fig);
+
 %% eye trace per trial
 fig = d.plotAvgTrialEye;
 analysis.src.screen2png(fullfile(saveDir, ['eyeAvg_' thisFile  '.png']), fig);

@@ -3,6 +3,10 @@ classdef nystagmusRivalry < marmodata.mdbase % vgsaccade.vgsaccade
     % cloud stim
 
     properties
+
+        %parameters for blink detection
+        blinkTh = 0.6; %default 0.95 (works for human)
+
         %parameters for saccade detection
         accThresh = 2500; %5000; %threshold for saccade detection in findSaccades
 
@@ -99,7 +103,10 @@ classdef nystagmusRivalry < marmodata.mdbase % vgsaccade.vgsaccade
         function fixDuration = getFixDuration(d)
             % fixDuration = d.meta.cic.fixDuration('time',Inf,'trial',1).data;
             try
-                fixDuration = d.meta.fixstim.fixDuration('time',Inf).data * ones(d.numTrials,1);
+                fixDuration = d.meta.fixstim.fixDuration('time',Inf).data;
+                if numel(fixDuration)==1
+                    fixDuration = fixDuration* ones(d.numTrials,1);
+                end
             catch err
                 fixDuration = d.meta.cic.fixDuration('time',Inf).data;
             end
@@ -255,7 +262,7 @@ classdef nystagmusRivalry < marmodata.mdbase % vgsaccade.vgsaccade
 
         function eye_rm = rmBlinkSaccade(d)
             for itr = 1:d.numTrials
-                tmp = d.eye(itr).rmBlinks('dt',median(diff(d.eye(itr).t)), 'duration', 0.01, 'debug', false); %marmodata/+marmodata/@eye/rmBlinks.m
+                tmp = d.eye(itr).rmBlinks('dt',median(diff(d.eye(itr).t)), 'duration', 0.01, 'thresh',d.blinkTh,'debug', true); %marmodata/+marmodata/@eye/rmBlinks.m
                 eye_rm(itr,1) = tmp.rmSaccades('debug',false,'sargs',{'accthresh', d.accThresh}); %marmodata/+marmodata/@eye/rmSaccades.m
                 %cf. fitKernel/selectSaccades
                 %close all
