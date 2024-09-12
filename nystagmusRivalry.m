@@ -100,7 +100,7 @@ p.addParameter('SOA', 900, @(x) validateattributes(x,{'numeric'},{'scalar','none
 
 p.addParameter('fixRequired',false,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 
-p.addParameter('afterStimDur',500,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % blank duration after 2nd patch w eye record(ms)
+p.addParameter('afterStimDur',300,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % blank duration after 2nd patch w eye record(ms)
 
 p.parse(subject,varargin{:});
 args = p.Results;
@@ -109,7 +109,7 @@ args = p.Results;
 radius_init = 2;%initial fixation radius [deg] value from OcuFol and cueSaccade
 fixDurationRange = {300, 500}; % [ms] minimum duration of fixation to initiate patch stimuli
 fixationDeadline = 5000; %[ms] maximum time to initiate a trial
-iti = 500; %[ms] inter trial interval
+iti = 700; %[ms] inter trial interval
 
 %luminance correction
 redLuminance = 151/255;%171/255; %Fraser ... Miller 2023
@@ -297,17 +297,6 @@ g.failEndsTrial = args.fixRequired;
 g.successEndsTrial = true;
 g.allowBlinks = false;
 
-% it = behaviors.fixate(c,'afterStim');
-% it.addProperty('afterStimDur',args.afterStimDur);
-% it.from = '@patch2.off';
-% it.tolerance = Inf; 
-% it.to = '@patch2.off + afterStim.afterStimDur';
-% it.X = 0;
-% it.Y = 0;
-% it.required = true;
-% it.failEndsTrial = true;
-% it.successEndsTrial = true; 
-
 %% Turn off logging
 stopLog(c.fixstim.prms.X);
 stopLog(c.fixstim.prms.Y);
@@ -349,7 +338,7 @@ stopLog(c.fixbhv.prms.allowBlinks);
 
 if true && ~isempty(c.pluginsByClass('newera'))
     % add liquid reward... newera syringe pump
-    c.newera.add('volume',args.rewardVol,'when','AFTERTRIAL','criterion','@afterStim.isSuccess');
+    c.newera.add('volume',args.rewardVol,'when','AFTERTRIAL','criterion','@fixbhv.isFixating');
 end
 
 
@@ -384,7 +373,7 @@ c.eye.doTrackerSetupEachBlock = true; %KY disabled
 % c.eye.clbMatrix = marmolab.loadCal(args.subject); %KY
 pluginNames = {c.plugins.name};
 jitterIdx = find(contains(pluginNames,'jitter'));
-c.setPluginOrder('eye', pluginNames{jitterIdx},'fixbhv','fixstim','patch1','keypress','patchContour', 'patch2','afterStim');
+c.setPluginOrder('eye', pluginNames{jitterIdx},'fixbhv','fixstim','patch1','keypress','patchContour', 'patch2');
 
 c.subject = args.subject; %params.subj; %'NP';
 
