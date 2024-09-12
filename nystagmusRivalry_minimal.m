@@ -1,4 +1,4 @@
-function nystagmusRivalry(subject,varargin)
+function nystagmusRivalry_minimal(subject,varargin)
 % created from pursuit2D.m  https://github.com/nPrice-lab/pursuit
 %
 % mouse as a eye position
@@ -174,7 +174,7 @@ f.size = 0.25; % units?
 f.color = [1 1 1];
 f.addProperty('fixDurationRange', fixDurationRange);
 f.addProperty('fixDuration', []); %should NOT add jitteer to cic. See jitteredITIdemo.m
-f.fixDuration = plugins.jitter(c, fixDurationRange,'distribution','uniform');
+f.fixDuration = 300;%plugins.jitter(c, fixDurationRange,'distribution','uniform');
 f.on=0;                         % What time should the stimulus come on? (all times are in ms)
 if args.fixRequired
     f.duration = '@fixbhv.startTime.fixating+fixstim.fixDuration'; % Show spot briefly after fixation acquired
@@ -259,20 +259,20 @@ if strcmp(args.patchType,'grating')
     fm{2}.phase = '@patch1.phase';
 end
 
-pc = stimuli.arc(c,'patchContour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
-pc.linewidth = contourWidth;               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
-pc.arcAngle = 360;
-pc.outerRad = args.radius+pc.linewidth;
-pc.color = [1 1 1];
-pc.on = '@patch1.on';
-pc.duration = args.tDur;
+% pc = stimuli.arc(c,'patchContour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
+% pc.linewidth = contourWidth;               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
+% pc.arcAngle = 360;
+% pc.outerRad = args.radius+pc.linewidth;
+% pc.color = [1 1 1];
+% pc.on = '@patch1.on';
+% pc.duration = args.tDur;
 
 %% ========== Add required behaviours =========
-k = behaviors.keyResponse(c,'keypress'); %registered upto once per trial
-k.from = '@patch1.on'; % end of patch
-k.maximumRT= Inf;                   %Allow inf time for a response
-k.keys = {'space'};%,'z'};
-k.required = false; %   setting false means that even if this behavior is not successful (i.e. the wrong answer is given), the trial will not be repeated.
+% k = behaviors.keyResponse(c,'keypress'); %registered upto once per trial
+% k.from = '@patch1.on'; % end of patch
+% k.maximumRT= Inf;                   %Allow inf time for a response
+% k.keys = {'space'};%,'z'};
+% k.required = false; %   setting false means that even if this behavior is not successful (i.e. the wrong answer is given), the trial will not be repeated.
 
 
 %Maintain gaze on the fixation (loose) until the trial end
@@ -331,9 +331,9 @@ stopLog(c.patch1.prms.disabled);
 stopLog(c.patch2.prms.rsvpIsi);
 stopLog(c.patch2.prms.disabled);
 
-stopLog(c.keypress.prms.event);
-stopLog(c.keypress.prms.state);
-stopLog(c.keypress.prms.from);
+% stopLog(c.keypress.prms.event);
+% stopLog(c.keypress.prms.state);
+% stopLog(c.keypress.prms.from);
 stopLog(c.fixbhv.prms.event);
 stopLog(c.fixbhv.prms.invert);
 stopLog(c.fixbhv.prms.allowBlinks);
@@ -394,7 +394,7 @@ c.eye.doTrackerSetupEachBlock = true; %KY disabled
 % c.eye.clbMatrix = marmolab.loadCal(args.subject); %KY
 pluginNames = {c.plugins.name};
 jitterIdx = find(contains(pluginNames,'jitter'));
-c.setPluginOrder('eye', pluginNames{jitterIdx},'fixbhv','fixstim','patch1','keypress','patchContour', 'patch2');%,'afterStim');
+%c.setPluginOrder('eye', pluginNames{jitterIdx},'fixbhv','fixstim','patch1','keypress','patchContour', 'patch2');%,'afterStim');
 
 c.subject = args.subject; %params.subj; %'NP';
 c.run(myBlk{1}); %cf. KY c.run(myBlk,'nrRepeats',500);
