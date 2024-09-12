@@ -279,10 +279,11 @@ k.required = false; %   setting false means that even if this behavior is not su
 g = behaviors.fixate(c,'fixbhv');
 g.addProperty('radius_init',radius_init);
 g.addProperty('radius',args.radius);
+g.addProperty('afterStimDur',args.afterStimDur);
 g.from = fixationDeadline; % If fixation has not started at this time, move to the next trial
 %g.to = '@patch2.off';  
 if args.fixRequired
-    g.to = '@fixbhv.startTime.fixating + fixstim.fixDuration + cic.tDur'; % NOT good idea to use fixstim here
+    g.to = '@fixbhv.startTime.fixating + fixstim.fixDuration + cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
 else
     g.to =  '@fixstim.fixDuration +  cic.tDur'; % NOT good idea to use fixstim here
 end
@@ -293,18 +294,19 @@ g.tolerance = '@iff(fixbhv.isFixating, fixbhv.radius, fixbhv.radius_init)'; % (d
 
 g.required = args.fixRequired; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
 g.failEndsTrial = args.fixRequired;
-g.successEndsTrial = false; %cf. false in OcuFol
+g.successEndsTrial = true;
+g.allowBlinks = false;
 
-it = behaviors.fixate(c,'afterStim');
-it.addProperty('afterStimDur',args.afterStimDur);
-it.from = '@patch2.off';
-it.tolerance = Inf; 
-it.to = '@patch2.off + afterStim.afterStimDur';
-it.X = 0;
-it.Y = 0;
-it.required = true;
-it.failEndsTrial = true;
-it.successEndsTrial = true; 
+% it = behaviors.fixate(c,'afterStim');
+% it.addProperty('afterStimDur',args.afterStimDur);
+% it.from = '@patch2.off';
+% it.tolerance = Inf; 
+% it.to = '@patch2.off + afterStim.afterStimDur';
+% it.X = 0;
+% it.Y = 0;
+% it.required = true;
+% it.failEndsTrial = true;
+% it.successEndsTrial = true; 
 
 %% Turn off logging
 stopLog(c.fixstim.prms.X);
@@ -334,15 +336,6 @@ stopLog(c.keypress.prms.from);
 stopLog(c.fixbhv.prms.event);
 stopLog(c.fixbhv.prms.invert);
 stopLog(c.fixbhv.prms.allowBlinks);
-stopLog(c.afterStim.prms.event);
-stopLog(c.afterStim.prms.state);
-stopLog(c.afterStim.prms.from);
-stopLog(c.afterStim.prms.allowBlinks);
-stopLog(c.afterStim.prms.to);
-stopLog(c.fixstim.prms.rsvpIsi);
-stopLog(c.fixstim.prms.disabled);
-stopLog(c.fixstim.prms.duration);
-
 
 
 %% ========== Specify feedback/rewards =========
