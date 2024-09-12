@@ -102,6 +102,8 @@ p.addParameter('fixRequired',false,@(x) validateattributes(x,{'logical'},{'scala
 
 p.addParameter('afterStimDur',300,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % blank duration after 2nd patch w eye record(ms)
 
+p.addParameter('audioFeedback',true,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
+
 p.parse(subject,varargin{:});
 args = p.Results;
 
@@ -190,12 +192,12 @@ s = RandStream('mt19937ar');
 nrConds = 2;
 fm = cell(nrConds,1);
 for ii = 1:nrConds
-
+    
     reset(s, 1);%args.rngSeed);
-
+    
     stimName = ['patch' num2str(ii)];
     %patch1: presented 1st, patch2: presented 2nd after SOA
-
+    
     if strcmp(args.patchType, 'rdp')
         fm{ii} = neurostim.stimuli.rdp(c,stimName);
         %rdp specific parameters
@@ -228,12 +230,12 @@ for ii = 1:nrConds
         fm{ii}.addProperty('speed',args.speed);
         %TODO: align temporal phase between patches?
     end
-
+    
     %common parameters across stim
     fm{ii}.X = 0;
     fm{ii}.Y = 0;
     fm{ii}.addProperty('frameRate', c.screen.frameRate);
-
+    
 end
 fm{1}.addProperty('conditionSwitch', 1);
 fm{1}.addProperty('redFirst',0);
@@ -259,20 +261,26 @@ if strcmp(args.patchType,'grating')
     fm{2}.phase = '@patch1.phase';
 end
 
-pc = stimuli.arc(c,'patchContour');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
-pc.linewidth = contourWidth;               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
-pc.arcAngle = 360;
-pc.outerRad = args.radius+pc.linewidth;
+pc = stimuli.convPoly(c, 'patchContour');
+pc.filled = false;
+pc.nSides = 32;
+pc.radius = args.radius;
+pc.linewidth = contourWidth;
+pc.preCalc = false;
 pc.color = [1 1 1];
-pc.on = '@patch1.on';
+pc.on = '@fixstim.off';%'@patch1.on';
 pc.duration = args.tDur;
 
 %% ========== Add required behaviours =========
-k = behaviors.keyResponse(c,'keypress'); %registered upto once per trial
-k.from = '@patch1.on'; % end of patch
-k.maximumRT= Inf;                   %Allow inf time for a response
-k.keys = {'space'};%,'z'};
-k.required = false; %   setting false means that even if this behavior is not successful (i.e. the wrong answer is given), the trial will not be repeated.
+c.addProperty('pressedKey',[]);
+c.addScript('KEYBOARD',@logKeyPress, 'space')
+    function logKeyPress(o, key)
+        %disp('a key was pressed');
+        % log the key press
+        o.cic.pressedKey = key;
+        % reset
+        o.cic.pressedKey = [];
+    end
 
 
 %Maintain gaze on the fixation (loose) until the trial end
@@ -281,7 +289,7 @@ g.addProperty('radius_init',radius_init);
 g.addProperty('radius',args.radius);
 g.addProperty('afterStimDur',args.afterStimDur);
 g.from = fixationDeadline; % If fixation has not started at this time, move to the next trial
-%g.to = '@patch2.off';  
+%g.to = '@patch2.off';
 if args.fixRequired
     g.to = '@fixbhv.startTime.fixating + fixstim.fixDuration + cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
 else
@@ -290,7 +298,7 @@ end
 g.X = 0; %'@traj.X';
 g.Y = 0; %'@traj.Y';
 g.tolerance = '@iff(fixbhv.isFixating, fixbhv.radius, fixbhv.radius_init)'; % (deg) allowed eye position error - should be aiming to get this as small as possible
-%FIXME
+
 
 g.required = args.fixRequired; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
 g.failEndsTrial = args.fixRequired;
@@ -319,26 +327,42 @@ stopLog(c.patch1.prms.disabled);
 stopLog(c.patch2.prms.rsvpIsi);
 stopLog(c.patch2.prms.disabled);
 
-stopLog(c.keypress.prms.event);
-stopLog(c.keypress.prms.state);
-stopLog(c.keypress.prms.from);
 stopLog(c.fixbhv.prms.event);
 stopLog(c.fixbhv.prms.invert);
 stopLog(c.fixbhv.prms.allowBlinks);
 
+stopLog(c.fixbhv.prms.tolerance);
+stopLog(c.patch1.prms.multiGaborsPhaseRand);
+stopLog(c.patch1.prms.multiGaborsOriRand);
+stopLog(c.patch2.prms.multiGaborsPhaseRand);
+stopLog(c.patch2.prms.multiGaborsOriRand);
+stopLog(c.patchContour.prms.on);
+stopLog(c.patchContour.prms.filled);
+stopLog(c.patchContour.prms.rsvpIsi);
+stopLog(c.patchContour.prms.disabled);
+stopLog(c.patchContour.prms.preCalc);
+stopLog(c.patchContour.prms.startTime);
+stopLog(c.patchContour.prms.stopTime);
 
 %% ========== Specify feedback/rewards =========
-% % Play a correct/incorrect sound for the 2AFC task
-% plugins.sound(c);           %Use the sound plugin
-%
-% % Add correct/incorrect feedback
-% s= plugins.soundFeedback(c,'soundFeedback');
-% s.add('waveform','correct.wav','when','afterTrial','criterion','@choice.correct');
-% s.add('waveform','incorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
+% % Play a correct/incorrect sound for 
+
+if args.audioFeedback
+    plugins.sound(c);           %Use the sound plugin
+    
+    % Add incorrect feedback
+    s= plugins.soundFeedback(c,'soundFeedback');
+    s.add('waveform','incorrect.wav','when','AFTERTRIAL','criterion','@~fixbhv.isSuccess');
+    
+    stopLog(c.soundFeedback.prms.item1criterion);
+    stopLog(c.soundFeedback.prms.item1delivered);
+    stopLog(c.soundFeedback.prms.item1repeat);
+    stopLog(c.soundFeedback.prms.nItems);
+end
 
 if true && ~isempty(c.pluginsByClass('newera'))
     % add liquid reward... newera syringe pump
-    c.newera.add('volume',args.rewardVol,'when','AFTERTRIAL','criterion','@fixbhv.isFixating');
+    c.newera.add('volume',args.rewardVol,'when','AFTERTRIAL','criterion','@fixbhv.isSuccess');
 end
 
 
@@ -373,7 +397,7 @@ c.eye.doTrackerSetupEachBlock = true; %KY disabled
 % c.eye.clbMatrix = marmolab.loadCal(args.subject); %KY
 pluginNames = {c.plugins.name};
 jitterIdx = find(contains(pluginNames,'jitter'));
-c.setPluginOrder('eye', pluginNames{jitterIdx},'fixbhv','fixstim','patch1','keypress','patchContour', 'patch2');
+c.setPluginOrder('eye', pluginNames{jitterIdx},'fixbhv','fixstim','patch1','patchContour', 'patch2');
 
 c.subject = args.subject; %params.subj; %'NP';
 
@@ -405,7 +429,7 @@ if args.debug
     % fName = '/home/marmolab/data/2022/12/13/easyD.test.161617.mat'; %'/home/marmolab/data/2022/12/13/tst.pursuit2D.161358.mat'; %'/home/marmolab/data/2022/12/13/tst.pursuit2D.152612.mat' %'/home/marmolab/data/2022/11/29/tst.pursuit2D.220253.mat';
     % load(fName)
     fd=get(c.prms.frameDrop,'struct',true);
-
+    
     dt = [];
     tr = unique(fd.trial);
     figure('Name','Dropped frames')
@@ -419,9 +443,10 @@ if args.debug
     xlim([0 max(fd.trialTime)])
     ylabel('Trial')
     xlabel('trialTime (ms)')
-
+    
     subplot(3,1,3)
     histogram(dt,0:10:2000)
     xlabel('delta (ms)')
     ylabel('count')
+end
 end
