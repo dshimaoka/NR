@@ -289,6 +289,10 @@ c.addScript('KEYBOARD',@logKeyPress, 'space')
 g = behaviors.fixate(c,'fixbhv');
 g.addProperty('radius_init',radius_init);
 g.addProperty('radius',args.radius);
+if args.fixRequired
+    g.radius_init = Inf;
+    g.radius = Inf;
+end
 g.addProperty('afterStimDur',args.afterStimDur);
 g.from = fixationDeadline; % If fixation has not started at this time, move to the next trial
 %g.to = '@patch2.off';
@@ -302,8 +306,8 @@ g.Y = 0; %'@traj.Y';
 g.tolerance = '@iff(fixbhv.isFixating, fixbhv.radius, fixbhv.radius_init)'; % (deg) allowed eye position error - should be aiming to get this as small as possible
 
 
-g.required = args.fixRequired; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
-g.failEndsTrial = args.fixRequired;
+g.required = true; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
+g.failEndsTrial = true;
 g.successEndsTrial = true;
 g.allowBlinks = false;
 
