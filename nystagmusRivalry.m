@@ -94,7 +94,7 @@ p.addParameter('conditionSwitch', [1 2], @(x) validateattributes(x,{'numeric'},{
 %patch stimuli
 p.addParameter('patchType','grating',@(x) validateattributes(x,{'char'},{'nonempty'})); %rdp or grating
 p.addParameter('dir1List',[0 90 180 270], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'})); %direction(s) of the first patch [deg] 0: left to right, 90: bottom to top
-p.addParameter('speed',22, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
+p.addParameter('speed',11, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
 p.addParameter('radius',14, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %aperture size [deg]
 p.addParameter('SOA', 900, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %stimulus onset after the end of fixation
 
@@ -125,7 +125,7 @@ redLuminance = 151/255;%171/255; %Fraser ... Miller 2023
 frequency = 0.5;%spatial frequency in cycles per visual angle in degree (not pixel) %Kapoor 2022
 
 %patch contour
-contourWidth  = 0.5; %[deg]
+contourWidth  = 10; %pixels? 
 
 import neurostim.*
 commandwindow;
@@ -299,10 +299,10 @@ g.from = fixationDeadline; % If fixation has not started at this time, move to t
 if args.fixRequired
     g.to = '@fixbhv.startTime.fixating + fixstim.fixDuration + cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
 else
-    g.to =  '@fixstim.fixDuration +  cic.tDur'; % NOT good idea to use fixstim here
+    g.to =  '@fixstim.fixDuration +  cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
 end
-g.X = 0; %'@traj.X';
-g.Y = 0; %'@traj.Y';
+g.X = 0;
+g.Y = 0;
 g.tolerance = '@iff(fixbhv.isFixating, fixbhv.radius, fixbhv.radius_init)'; % (deg) allowed eye position error - should be aiming to get this as small as possible
 
 
@@ -453,6 +453,7 @@ if args.debug
     subplot(3,1,3)
     histogram(dt,0:10:2000)
     xlabel('delta (ms)')
+    
     ylabel('count')
 end
 end
