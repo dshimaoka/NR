@@ -287,9 +287,9 @@ c.addScript('KEYBOARD',@logKeyPress, 'space')
 
 %Maintain gaze on the fixation (loose) until the trial end
 g = behaviors.fixate(c,'fixbhv');
-g.addProperty('radius_init',radius_init);
-g.addProperty('radius',args.radius);
-if args.fixRequired
+g.addProperty('radius_init',Inf);%radius_init);
+g.addProperty('radius',Inf);%args.radius);
+if ~args.fixRequired
     g.radius_init = Inf;
     g.radius = Inf;
 end
