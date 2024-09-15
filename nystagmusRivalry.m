@@ -85,7 +85,7 @@ p.addRequired('subject',@(x) validateattributes(x,{'char'},{'nonempty'}));
 p.addParameter('debug',false,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 p.addParameter('tDur',1800,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % trial duration from onset of first patch (ms)
 p.addParameter('nRepPerCond',4,@(x) validateattributes(x,{'numeric'},{'scalar','positive'}));  % number of repeats of each condition
-p.addParameter('rewardVol',0.08,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
+p.addParameter('rewardVol',0.035,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
 p.addParameter('conditionSwitch', [1 2], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'}));
 %conditionSwitch = 0: binocular flash suppression
 %conditionSwitch = 1: physical alteration
@@ -287,8 +287,8 @@ c.addScript('KEYBOARD',@logKeyPress, 'space')
 
 %Maintain gaze on the fixation (loose) until the trial end
 g = behaviors.fixate(c,'fixbhv');
-g.addProperty('radius_init',Inf);%radius_init);
-g.addProperty('radius',Inf);%args.radius);
+g.addProperty('radius_init', radius_init);
+g.addProperty('radius', args.radius);
 if ~args.fixRequired
     g.radius_init = Inf;
     g.radius = Inf;
