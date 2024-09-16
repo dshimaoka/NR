@@ -275,6 +275,8 @@ pc.preCalc = false;
 pc.color = [1 1 1];
 pc.on = '@fixstim.off';%'@patch1.on';
 pc.duration = args.tDur;
+pc.X = args.fixX;
+pc.Y = args.fixY;
 
 %% ========== Add required behaviours =========
 c.addProperty('pressedKey',[]);
