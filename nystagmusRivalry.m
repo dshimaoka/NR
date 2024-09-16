@@ -105,6 +105,7 @@ p.addParameter('afterStimDur',300,@(x) validateattributes(x,{'numeric'},{'scalar
 p.addParameter('audioFeedback',true,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 p.addParameter('fixX', 0, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
 p.addParameter('fixY', 0, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
+p.addParameter('allowBlinks',true,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 
 
 p.parse(subject,varargin{:});
@@ -176,8 +177,8 @@ end
 
 %% Fixation dot
 f = stimuli.fixation(c,'fixstim');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
-f.shape = 'CIRC';               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
-f.size = 0.25; % units?
+f.shape = 'DONUT';%'CIRC';               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
+f.size = 2;
 f.color = [1 1 1];
 f.addProperty('fixDurationRange', fixDurationRange);
 f.addProperty('fixDuration', []); %should NOT add jitteer to cic. See jitteredITIdemo.m
@@ -314,7 +315,10 @@ g.tolerance = '@iff(fixbhv.isFixating, fixbhv.radius, fixbhv.radius_init)'; % (d
 g.required = true; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
 g.failEndsTrial = true;
 g.successEndsTrial = true;
-g.allowBlinks = false;
+g.allowBlinks = args.allowBlinks;%false;
+if args.allowBlinks
+    g.grace = Inf;
+end
 
 %% Turn off logging
 stopLog(c.fixstim.prms.X);
