@@ -103,6 +103,9 @@ p.addParameter('fixRequired',false,@(x) validateattributes(x,{'logical'},{'scala
 p.addParameter('afterStimDur',300,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % blank duration after 2nd patch w eye record(ms)
 
 p.addParameter('audioFeedback',true,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
+p.addParameter('fixX', 0, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
+p.addParameter('fixY', 0, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
+
 
 p.parse(subject,varargin{:});
 args = p.Results;
@@ -185,8 +188,8 @@ if args.fixRequired
 else
     f.duration = '@fixstim.fixDuration';
 end
-f.X = 0;
-f.Y = 0;
+f.X = args.fixX;
+f.Y = args.fixY;
 
 %% RDP
 s = RandStream('mt19937ar');
@@ -234,8 +237,8 @@ for ii = 1:nrConds
     end
     
     %common parameters across stim
-    fm{ii}.X = 0;
-    fm{ii}.Y = 0;
+    fm{ii}.X = args.fixX;
+    fm{ii}.Y = args.fixY;
     fm{ii}.addProperty('frameRate', c.screen.frameRate);
     
 end
@@ -301,8 +304,8 @@ if args.fixRequired
 else
     g.to =  '@fixstim.fixDuration +  cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
 end
-g.X = 0;
-g.Y = 0;
+g.X = args.fixX;
+g.Y = args.fixY;
 g.tolerance = '@iff(fixbhv.isFixating, fixbhv.radius, fixbhv.radius_init)'; % (deg) allowed eye position error - should be aiming to get this as small as possible
 
 
