@@ -311,7 +311,7 @@ else
 end
 g.X = args.fixX;
 g.Y = args.fixY;
-g.tolerance = fixbhv.radius_init; % (deg) allowed eye position error - should be aiming to get this as small as possible
+g.tolerance = g.radius_init; % (deg) allowed eye position error - should be aiming to get this as small as possible
 %what if 
 % at the beginning of a trial, eye is already on fixation point, then tolerance is radius?
 % > force isFixating to be false at the start of a trial?
@@ -331,12 +331,13 @@ g2.addProperty('radius', args.radius);
 if ~args.fixRequired
     g2.radius = Inf;
 end
-g2.addProperty('afterStimDur',args.afterStimDur);
-g2.from = '@fixbhv_init.to + fixbhv.ignoreFixDur';
-g2.to = '@fixbhv_init.to + cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
+% g2.from = '@fixbhv_init.to + fixbhv.ignoreFixDur';
+% g2.to = '@fixbhv_init.to + cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
+g2.from = '@fixstim.off + fixbhv.ignoreFixDur';
+g2.to = '@fixstim.off + cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
 g2.X = args.fixX;
 g2.Y = args.fixY;
-g2.tolerance = fixbhv.radius;
+g2.tolerance = g2.radius;
 g2.required = true; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
 g2.failEndsTrial = true;
 g2.successEndsTrial = true;
