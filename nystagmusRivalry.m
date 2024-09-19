@@ -102,6 +102,7 @@ p.addParameter('SOA', 900, @(x) validateattributes(x,{'numeric'},{'scalar','none
 p.addParameter('fixRequired',false,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 
 p.addParameter('afterStimDur',300,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % blank duration after 2nd patch w eye record(ms)
+p.addParameter('ignoreFixDur',300,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % duration to ignore eye movement at the start of 1st patch (ms)
 
 p.addParameter('audioFeedback',true,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 p.addParameter('fixX', 0, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
@@ -293,34 +294,57 @@ c.addScript('KEYBOARD',@logKeyPress, 'space')
     end
 
 
-%Maintain gaze on the fixation (loose) until the trial end
-g = behaviors.fixate(c,'fixbhv');
+%Maintain gaze on the tight fixation at the beginning of a trial
+g = behaviors.fixate(c,'fixbhv_init');
 g.addProperty('radius_init', radius_init);
-g.addProperty('radius', args.radius);
+% g.addProperty('radius', args.radius);
 if ~args.fixRequired
     g.radius_init = Inf;
-    g.radius = Inf;
+%     g.radius = Inf;
 end
-g.addProperty('afterStimDur',args.afterStimDur);
+% g.addProperty('afterStimDur',args.afterStimDur);
 g.from = fixationDeadline; % If fixation has not started at this time, move to the next trial
-%g.to = '@patch2.off';
 if args.fixRequired
-    g.to = '@fixbhv.startTime.fixating + fixstim.fixDuration + cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
+    g.to = '@fixbhv_init.startTime.fixating + fixstim.fixDuration';% + cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
 else
-    g.to =  '@fixstim.fixDuration +  cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
+    g.to =  '@fixstim.fixDuration'; % NOT good idea to use fixstim here
 end
 g.X = args.fixX;
 g.Y = args.fixY;
-g.tolerance = '@iff(fixbhv.isFixating, fixbhv.radius, fixbhv.radius_init)'; % (deg) allowed eye position error - should be aiming to get this as small as possible
-
-
+g.tolerance = fixbhv.radius_init; % (deg) allowed eye position error - should be aiming to get this as small as possible
+%what if 
+% at the beginning of a trial, eye is already on fixation point, then tolerance is radius?
+% > force isFixating to be false at the start of a trial?
 g.required = true; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
 g.failEndsTrial = true;
-g.successEndsTrial = true;
-g.allowBlinks = args.allowBlinks;%false;
+g.successEndsTrial = false; %?
+g.allowBlinks = args.allowBlinks;%?
 if args.allowBlinks
     g.grace = Inf;
 end
+
+%% loose fixation during patch presentations
+g2 = behaviors.fixate(c,'fixbhv');
+g2.addProperty('afterStimDur',args.afterStimDur);
+g2.addProperty('ignoreFixDur',args.ignoreFixDur);
+g2.addProperty('radius', args.radius);
+if ~args.fixRequired
+    g2.radius = Inf;
+end
+g2.addProperty('afterStimDur',args.afterStimDur);
+g2.from = '@fixbhv_init.to + fixbhv.ignoreFixDur';
+g2.to = '@fixbhv_init.to + cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
+g2.X = args.fixX;
+g2.Y = args.fixY;
+g2.tolerance = fixbhv.radius;
+g2.required = true; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
+g2.failEndsTrial = true;
+g2.successEndsTrial = true;
+g2.allowBlinks = args.allowBlinks;%false;
+if args.allowBlinks
+    g2.grace = Inf;
+end
+
 
 %% Turn off logging
 stopLog(c.fixstim.prms.X);
@@ -414,7 +438,7 @@ c.eye.doTrackerSetupEachBlock = true; %KY disabled
 % c.eye.clbMatrix = marmolab.loadCal(args.subject); %KY
 pluginNames = {c.plugins.name};
 jitterIdx = find(contains(pluginNames,'jitter'));
-c.setPluginOrder('eye', pluginNames{jitterIdx},'fixbhv','fixstim','patch1','patchContour', 'patch2');
+c.setPluginOrder('eye', pluginNames{jitterIdx},'fixbhv_init','fixstim','fixbhv','patch1','patchContour', 'patch2');
 
 c.subject = args.subject; %params.subj; %'NP';
 
