@@ -297,12 +297,9 @@ c.addScript('KEYBOARD',@logKeyPress, 'space')
 %Maintain gaze on the tight fixation at the beginning of a trial
 g = behaviors.fixate(c,'fixbhv_init');
 g.addProperty('radius_init', radius_init);
-% g.addProperty('radius', args.radius);
 if ~args.fixRequired
     g.radius_init = Inf;
-%     g.radius = Inf;
 end
-% g.addProperty('afterStimDur',args.afterStimDur);
 g.from = fixationDeadline; % If fixation has not started at this time, move to the next trial
 if args.fixRequired
     g.to = '@fixbhv_init.startTime.fixating + fixstim.fixDuration';% + cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
@@ -311,7 +308,7 @@ else
 end
 g.X = args.fixX;
 g.Y = args.fixY;
-g.tolerance = Inf;%TEMP %g.radius_init; % (deg) allowed eye position error - should be aiming to get this as small as possible
+g.tolerance = g.radius_init; % (deg) allowed eye position error - should be aiming to get this as small as possible
 g.required = true; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
 g.failEndsTrial = true;
 g.successEndsTrial = false; %?
@@ -328,21 +325,19 @@ g2.addProperty('radius', args.radius);
 if ~args.fixRequired
     g2.radius = Inf;
 end
-% g2.from = '@fixbhv_init.to + fixbhv.ignoreFixDur';
-% g2.to = '@fixbhv_init.to + cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
-% g2.on = '@fixstim.off + fixbhv.ignoreFixDur';
-% g2.off = '@fixstim.off + cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
 g2.from = '@patch1.on + fixbhv.ignoreFixDur';
 g2.to = '@patch1.on + cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
 g2.X = args.fixX;
 g2.Y = args.fixY;
-g2.tolerance = args.radius; %TEMP %g2.radius;
+g2.tolerance = args.radius; 
 g2.required = true; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
 g2.failEndsTrial = true;
 g2.successEndsTrial = true;
 g2.allowBlinks = args.allowBlinks;%false;
 if args.allowBlinks
-    g2.grace = Inf;
+    g2.grace = '@patch1.on + fixbhv.ignoreFixDur';
+    %Inf; then any behaviour during the 2nd patch is allowed
+    %note fixation duration is counted from the start of fixbhv_init
 end
 
 
