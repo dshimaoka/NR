@@ -114,7 +114,7 @@ p.parse(subject,varargin{:});
 args = p.Results;
 
 %% fixed parameters
-radius_init = 2;%initial fixation radius [deg] value from OcuFol and cueSaccade
+radius_init = 5;%initial fixation radius [deg] value from OcuFol and cueSaccade
 fixDurationRange = {300, 500}; % [ms] minimum duration of fixation to initiate patch stimuli
 fixationDeadline = 5000; %[ms] maximum time to initiate a trial
 iti = 700; %[ms] inter trial interval
