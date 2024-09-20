@@ -188,7 +188,7 @@ f.addProperty('fixDuration', []); %should NOT add jitteer to cic. See jitteredIT
 f.fixDuration = plugins.jitter(c, fixDurationRange,'distribution','uniform');
 f.on=0;                         % What time should the stimulus come on? (all times are in ms)
 if args.fixRequired
-    f.duration = '@fixbhv.startTime.fixating+fixstim.fixDuration'; % Show spot briefly after fixation acquired
+    f.duration = '@fixbhv_init.startTime.fixating+fixstim.fixDuration'; % Show spot briefly after fixation acquired
 else
     f.duration = '@fixstim.fixDuration';
 end
@@ -353,8 +353,6 @@ stopLog(c.patch1.prms.X);
 stopLog(c.patch1.prms.Y);
 stopLog(c.patch2.prms.X);
 stopLog(c.patch2.prms.Y);
-stopLog(c.fixbhv.prms.X);
-stopLog(c.fixbhv.prms.Y);
 
 if strcmp(args.patchType,'rdp')
     stopLog(c.patch1.prms.xspeed);
@@ -368,11 +366,13 @@ stopLog(c.patch1.prms.disabled);
 stopLog(c.patch2.prms.rsvpIsi);
 stopLog(c.patch2.prms.disabled);
 
+stopLog(c.fixbhv.prms.X);
+stopLog(c.fixbhv.prms.Y);
 stopLog(c.fixbhv.prms.event);
 stopLog(c.fixbhv.prms.invert);
 stopLog(c.fixbhv.prms.allowBlinks);
-
 stopLog(c.fixbhv.prms.tolerance);
+
 stopLog(c.patch1.prms.multiGaborsPhaseRand);
 stopLog(c.patch1.prms.multiGaborsOriRand);
 stopLog(c.patch2.prms.multiGaborsPhaseRand);
@@ -384,6 +384,13 @@ stopLog(c.patchContour.prms.disabled);
 stopLog(c.patchContour.prms.preCalc);
 stopLog(c.patchContour.prms.startTime);
 stopLog(c.patchContour.prms.stopTime);
+
+stopLog(c.fixbhv_init.prms.X);
+stopLog(c.fixbhv_init.prms.Y);
+stopLog(c.fixbhv_init.prms.event);
+stopLog(c.fixbhv_init.prms.invert);
+stopLog(c.fixbhv_init.prms.allowBlinks);
+stopLog(c.fixbhv_init.prms.tolerance);
 
 %% ========== Specify feedback/rewards =========
 % % Play a correct/incorrect sound for 
