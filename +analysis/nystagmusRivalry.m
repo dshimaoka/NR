@@ -220,28 +220,34 @@ classdef nystagmusRivalry < marmodata.mdbase % vgsaccade.vgsaccade
             patch2Stop(patch2Stop<0) = NaN; %ms
         end
 
-        function keyPressTime = getKeyPressTime(d)
+   function keyPressTime = getKeyPressTime(d) %FIXME only 1st key press is returned
             %get time of key press from the onset of each trial [ms]
 
             t0 =  d.meta.cic.firstFrame('time',Inf);
 
-            [time,trial,frame,keyTmp] = d.meta.keypress.keyIx('time',Inf);
-            key = cell2mat(keyTmp);
-            ignoreTrial = isnan(key);
-            keepInd = find(~ignoreTrial);
-            time = time(~ignoreTrial);
-            trial = trial(~ignoreTrial);
-            frame = frame(~ignoreTrial);
-            key = key(~ignoreTrial);
-
             keyPressTime = cell(d.numTrials, 1);
+            try
             for itr = 1:d.numTrials
-                keyPressTime{itr} = 1e3*(time(trial == itr) - t0(itr));
+                % [time,trial,frame,keyTmp] = d.meta.keypress.keyIx('trial',itr);
+                [time,trial,frame,keyTmp] = d.meta.cic.pressedKey('trial',itr);
+
+                ignoreEntry = cellfun(@isempty, keyTmp);
+                keepInd = find(~ignoreEntry);
+                time = time(~ignoreEntry);
+                trial = trial(~ignoreEntry);
+                frame = frame(~ignoreEntry);
+                key = keyTmp(~ignoreEntry);
+
+                keyPressTime{itr} = (time - t0(itr));
                 if isempty( keyPressTime{itr})
                     keyPressTime{itr} = NaN;
                 end
             end
-        end
+            catch err
+                return;
+            end
+
+   end
 
         function trialEndTime = getTrialEndTime(d)
             trialEndTime = zeros(d.numTrials,1);
@@ -262,13 +268,23 @@ classdef nystagmusRivalry < marmodata.mdbase % vgsaccade.vgsaccade
 
         function eye_rm = rmBlinkSaccade(d)
             for itr = 1:d.numTrials
-                tmp = d.eye(itr).rmBlinks('dt',median(diff(d.eye(itr).t)), 'duration', 0.01, 'thresh',d.blinkTh,'debug', true); %marmodata/+marmodata/@eye/rmBlinks.m
+                tmp = d.eye(itr).rmBlinks('dt',median(diff(d.eye(itr).t)), 'duration', 0.01, 'thresh',d.blinkTh,'debug', false); %marmodata/+marmodata/@eye/rmBlinks.m
                 eye_rm(itr,1) = tmp.rmSaccades('debug',false,'sargs',{'accthresh', d.accThresh}); %marmodata/+marmodata/@eye/rmSaccades.m
                 %cf. fitKernel/selectSaccades
                 %close all
             end
         end
 
+        function [latency_start] = getBlinkLatency(d)
+            latency_start = nan(d.numTrials,1);
+              for itr = 1:d.numTrials
+                  t_blink = 1e3*(d.meta.edf.STARTBLINK('trial',itr).time - d.meta.cic.firstFrame('trial',itr).time) - d.patch1Start(itr);
+                  t_blink = t_blink(t_blink>0);
+                  if ~isempty(t_blink)
+                      latency_start(itr) = min(t_blink);
+                  end
+              end
+        end
 
         function [invalid, reason] = getInvalidBhvTrials(d)
             invalid = zeros(d.numTrials,3);
