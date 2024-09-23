@@ -109,13 +109,13 @@ p.addParameter('fixX', 0, @(x) validateattributes(x,{'numeric'},{'scalar','nonem
 p.addParameter('fixY', 0, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %[(visual angle in deg)/s]
 p.addParameter('allowBlinks',true,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 
+p.addParameter('radius_init', 5, @(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); %initial fixation radius [deg] value from OcuFol and cueSaccade
+p.addParameter('fixDurationRange' , {200, 201}); % [ms] minimum duration of fixation to initiate patch stimuli
 
 p.parse(subject,varargin{:});
 args = p.Results;
 
 %% fixed parameters
-radius_init = 5;%initial fixation radius [deg] value from OcuFol and cueSaccade
-fixDurationRange = {300, 500}; % [ms] minimum duration of fixation to initiate patch stimuli
 fixationDeadline = 5000; %[ms] maximum time to initiate a trial
 iti = 700; %[ms] inter trial interval
 
@@ -140,7 +140,7 @@ commandwindow;
 nTotTrials = args.nRepPerCond * numel(args.dir1List) * 2 * numel(args.conditionSwitch); % direction x (congruent / incongruent) * (red/blue)
 
 % estimated experiment duration [s]
-nTotTime = nTotTrials * (args.tDur + args.afterStimDur + iti + mean(cell2mat(fixDurationRange))) * 1e-3;
+nTotTime = nTotTrials * (args.tDur + args.afterStimDur + iti + mean(cell2mat(args.fixDurationRange))) * 1e-3;
 disp(['Expected duration ' num2str(nTotTime) '[s]']);
 
 %% ========= Specify rig configuration  =========
@@ -183,9 +183,9 @@ f = stimuli.fixation(c,'fixstim');    % Add a fixation stimulus object (named "f
 f.shape = 'CIRC';               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
 f.size = 2;
 f.color = [1 1 1];
-f.addProperty('fixDurationRange', fixDurationRange);
+f.addProperty('fixDurationRange', args.fixDurationRange);
 f.addProperty('fixDuration', []); %should NOT add jitteer to cic. See jitteredITIdemo.m
-f.fixDuration = plugins.jitter(c, fixDurationRange,'distribution','uniform');
+f.fixDuration = plugins.jitter(c, f.fixDurationRange,'distribution','uniform');
 f.on=0;                         % What time should the stimulus come on? (all times are in ms)
 if args.fixRequired
     f.duration = '@fixbhv_init.startTime.fixating+fixstim.fixDuration'; % Show spot briefly after fixation acquired
@@ -296,7 +296,7 @@ c.addScript('KEYBOARD',@logKeyPress, 'space')
 
 %Maintain gaze on the tight fixation at the beginning of a trial
 g = behaviors.fixate(c,'fixbhv_init');
-g.addProperty('radius_init', radius_init);
+g.addProperty('radius_init', args.radius_init);
 if ~args.fixRequired
     g.radius_init = Inf;
 end
