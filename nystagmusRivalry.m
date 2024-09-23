@@ -120,7 +120,7 @@ fixationDeadline = 5000; %[ms] maximum time to initiate a trial
 iti = 700; %[ms] inter trial interval
 
 %luminance correction
-redLuminance = 151/255;%171/255; %Fraser ... Miller 2023
+redLuminance = 128/255;%171/255; %Fraser ... Miller 2023
 %redLuminance = 0.33; %DS office
 
 %RDP
@@ -156,7 +156,7 @@ c.saveEveryN = 1;
 c.paradigm = 'nystagmusRivalry';
 c.addProperty('SOA',args.SOA);
 c.addProperty('tDur',args.tDur);
-c.screen.color.background = [0 1 0];
+c.screen.color.background = [0 .5 0];
 c.addProperty('redLuminance', redLuminance);
 c.addProperty('patchType', args.patchType);
 c.addProperty('rewardVol', args.rewardVol);
