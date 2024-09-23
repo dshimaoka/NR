@@ -156,7 +156,7 @@ c.saveEveryN = 1;
 c.paradigm = 'nystagmusRivalry';
 c.addProperty('SOA',args.SOA);
 c.addProperty('tDur',args.tDur);
-c.screen.color.background = [0 0 0];
+c.screen.color.background = [0 1 0];
 c.addProperty('redLuminance', redLuminance);
 c.addProperty('patchType', args.patchType);
 c.addProperty('rewardVol', args.rewardVol);
@@ -180,7 +180,7 @@ end
 
 %% Fixation dot
 f = stimuli.fixation(c,'fixstim');    % Add a fixation stimulus object (named "fix") to the cic. It is born with default values for all parameters.
-f.shape = 'DONUT';%'CIRC';               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
+f.shape = 'CIRC';               %The seemingly local variable "f" is actually a handle to the stimulus in CIC, so can alter the internal stimulus by modifying "f".
 f.size = 2;
 f.color = [1 1 1];
 f.addProperty('fixDurationRange', fixDurationRange);
