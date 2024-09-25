@@ -312,7 +312,7 @@ g.tolerance = g.radius_init; % (deg) allowed eye position error - should be aimi
 g.required = true; % This is a required behavior. Any trial in which fixation is not maintained throughout will be retried. (See myDesign.retry below)
 g.failEndsTrial = true;
 g.successEndsTrial = false; %?
-g.allowBlinks = args.allowBlinks;%?
+g.allowBlinks = false;%args.allowBlinks;%?
 if args.allowBlinks
     g.grace = Inf;
 end
