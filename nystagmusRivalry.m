@@ -85,7 +85,7 @@ p.addRequired('subject',@(x) validateattributes(x,{'char'},{'nonempty'}));
 p.addParameter('debug',false,@(x) validateattributes(x,{'logical'},{'scalar','nonempty'}));
 p.addParameter('tDur',1800,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'}));  % trial duration from onset of first patch (ms)
 p.addParameter('nRepPerCond',4,@(x) validateattributes(x,{'numeric'},{'scalar','positive'}));  % number of repeats of each condition
-p.addParameter('rewardVol',0.035,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
+p.addParameter('rewardVol',0.02,@(x) validateattributes(x,{'numeric'},{'scalar','nonempty'})); % adopted from OcuFol
 p.addParameter('conditionSwitch', [1 2], @(x) validateattributes(x,{'numeric'},{'vector','nonempty'}));
 %conditionSwitch = 0: binocular flash suppression
 %conditionSwitch = 1: physical alteration
@@ -325,7 +325,7 @@ g2.addProperty('radius', args.radius);
 if ~args.fixRequired
     g2.radius = Inf;
 end
-g2.from = '@patch1.on + fixbhv.ignoreFixDur';
+g2.from = Inf;%'@patch1.on + fixbhv.ignoreFixDur';
 g2.to = '@patch1.on + cic.tDur + fixbhv.afterStimDur'; % NOT good idea to use fixstim here
 g2.X = args.fixX;
 g2.Y = args.fixY;
@@ -405,7 +405,7 @@ end
 
 if true && ~isempty(c.pluginsByClass('newera'))
     % add liquid reward... newera syringe pump
-    c.newera.add('volume',args.rewardVol,'when','AFTERTRIAL','criterion','@fixbhv.isSuccess');
+    c.newera.add('volume',args.rewardVol,'when','AFTERTRIAL','criterion','@fixbhv_init.isSuccess.*fixbhv.isSuccess');
 end
 
 
