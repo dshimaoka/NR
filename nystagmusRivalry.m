@@ -116,7 +116,7 @@ p.parse(subject,varargin{:});
 args = p.Results;
 
 %% fixed parameters
-fixationDeadline = 5000; %[ms] maximum time to initiate a trial
+fixationDeadline = 1000;%5000; %[ms] maximum time to initiate a trial
 iti = 700; %[ms] inter trial interval
 
 %luminance correction
