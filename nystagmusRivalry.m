@@ -149,6 +149,7 @@ disp(['Expected duration ' num2str(nTotTime) '[s]']);
 c = marmolab.rigcfg('debug',args.debug, p.Unmatched); % set to false to save githash at start of each experiment!
 c.screen.overlayClut(4,:)=0; %do NOT show grids in subject screen
 c.screen.overlayClut(9,:)=1; %show eye position in console screen
+c.eye.useRawData = false;
 
 c.hardware.keyEcho = false;
 c.saveEveryN = 1;
