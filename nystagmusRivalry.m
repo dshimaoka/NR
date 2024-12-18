@@ -150,7 +150,7 @@ c = marmolab.rigcfg('debug',args.debug, p.Unmatched); % set to false to save git
 c.screen.overlayClut(4,:)=0; %do NOT show grids in subject screen
 c.screen.overlayClut(2,:)=0; %do NOT show eye position in console screen
 c.screen.overlayClut(9,:)=1; %show eye position in console screen
-c.eye.useRawData = false; %was true on 18/12/24 
+c.eye.useRawData = true; %must be true to use clbMatrix 
 c.hardware.keyEcho = false; %false
 c.saveEveryN = 1;
 
