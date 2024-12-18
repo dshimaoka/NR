@@ -196,19 +196,21 @@ end
 f.X = args.fixX;
 f.Y = args.fixY;
 
-%% RDP
-s = RandStream('mt19937ar');
+if strcmp(args.patchType, 'rdp')
+    s = RandStream('mt19937ar');
+end
 
 nrConds = 2;
 fm = cell(nrConds,1);
 for ii = 1:nrConds
     
-    reset(s, 1);%args.rngSeed);
-    
+     
     stimName = ['patch' num2str(ii)];
     %patch1: presented 1st, patch2: presented 2nd after SOA
     
     if strcmp(args.patchType, 'rdp')
+        reset(s, 1);%args.rngSeed);
+   
         fm{ii} = neurostim.stimuli.rdp(c,stimName);
         %rdp specific parameters
         fm{ii}.maxRadius =  args.radius;%maximum radius of aperture (px)
