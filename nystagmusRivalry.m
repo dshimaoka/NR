@@ -148,7 +148,7 @@ disp(['Expected duration ' num2str(nTotTime) '[s]']);
 %Create a Command and Intelligence Centre object (the central controller for everything). Here a cic is returned with some default settings for this computer, if it is recognized.
 c = marmolab.rigcfg('debug',args.debug, p.Unmatched); % set to false to save githash at start of each experiment!
 c.screen.overlayClut(4,:)=0; %do NOT show grids in subject screen
-c.screen.overlayClut(9,:)=1; %show eye position in console screen
+% c.screen.overlayClut(9,:)=1; %show eye position in console screen
 c.eye.useRawData = true; %true causes the bug
 c.hardware.keyEcho = false; %false
 c.saveEveryN = 1;
@@ -156,7 +156,7 @@ c.saveEveryN = 1;
 c.paradigm = 'nystagmusRivalry';
 c.addProperty('SOA',args.SOA);
 c.addProperty('tDur',args.tDur);
-c.screen.color.background = [0 .5 0];
+c.screen.color.background = [0 0 0];
 c.addProperty('redLuminance', redLuminance);
 c.addProperty('patchType', args.patchType);
 c.addProperty('rewardVol', args.rewardVol);
