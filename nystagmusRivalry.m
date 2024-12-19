@@ -129,6 +129,7 @@ redLuminance = 128/255;%171/255; %Fraser ... Miller 2023
 
 %grating
 frequency = 0.5;%spatial frequency in cycles per visual angle in degree (not pixel) %Kapoor 2022
+contrast = 0.5;
 
 %patch contour
 contourWidth  = 10; %pixels? 
@@ -233,7 +234,7 @@ for ii = 1:nrConds
         fm{ii}.sigma = args.radius;
         fm{ii}.mask = 'CIRCLE';
         fm{ii}.frequency = frequency;
-        fm{ii}.contrast = 1;
+        fm{ii}.contrast = contrast;
         fm{ii}.flickerMode = 'sinecontrast';%'none'; %none makes the phase difference between patches more apparent
         fm{ii}.flickerFrequency = 0;
         fm{ii}.orientation = 0;
