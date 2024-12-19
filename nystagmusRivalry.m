@@ -432,7 +432,7 @@ myDesign.fac2.patch1.redFirst = [0 1]; %whether to start with red or blue
 myDesign.fac3.patch1.conditionSwitch = args.conditionSwitch;
 
 myDesign.retry = 'RANDOM'; %'IMMEDIATE' or 'IGNORE';
-myDesign.maxRetry = 1;%10;  % Each condition will be retried up to this many times.
+myDesign.maxRetry = 100;%10;  % Each condition will be retried up to this many times.
 
 a=1;
 myBlk{a} = block('myBlock',myDesign);
