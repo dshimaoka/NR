@@ -129,7 +129,7 @@ redLuminance = 128/255;%171/255; %Fraser ... Miller 2023
 
 %grating
 frequency = 0.5;%spatial frequency in cycles per visual angle in degree (not pixel) %Kapoor 2022
-contrast = .5;
+contrast = 1;
 
 %patch contour
 contourWidth  = 10; %pixels? 
